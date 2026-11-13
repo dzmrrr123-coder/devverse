@@ -10,16 +10,14 @@ import type { GitHubRepoSummary } from './api/user/repos'
 
 export const Route = createFileRoute('/dashboard')({
   beforeLoad: async () => {
-    // Check session on server
     const data = await getDashboardData()
     if (!data) {
       throw redirect({ to: '/login' })
     }
+    return { dashboardData: data }
   },
-  loader: async () => {
-    const data = await getDashboardData()
-    if (!data) throw redirect({ to: '/login' })
-    return data
+  loader: async ({ context }) => {
+    return context.dashboardData
   },
   head: () => ({
     meta: [

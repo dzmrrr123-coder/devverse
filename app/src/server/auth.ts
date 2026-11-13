@@ -205,7 +205,7 @@ export async function getOrCreateUser(profile: {
 
 export function createSessionCookie(token: string): string {
   const maxAge = 30 * 24 * 60 * 60 // 30 hari
-  return `devverse_session=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}`
+  return `devverse_session=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=${maxAge}`
 }
 
 export function createClearSessionCookie(): string {

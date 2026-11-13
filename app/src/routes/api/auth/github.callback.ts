@@ -12,19 +12,32 @@ export const Route = createFileRoute('/api/auth/github/callback')({
       GET: async ({ request }) => {
         const url = new URL(request.url)
         const code = url.searchParams.get('code')
-        const host = request.headers.get('host') || url.host
-        const proto = request.headers.get('x-forwarded-proto') || 'https'
-        const baseUrl = `${proto}://${host}`
+        const error = url.searchParams.get('error')
+        const errorDesc = url.searchParams.get('error_description')
+
+        if (error) {
+          console.error('GitHub OAuth mengembalikan error:', error, errorDesc)
+          return new Response(null, {
+            status: 302,
+            headers: { location: `/login?error=${encodeURIComponent(error)}` },
+          })
+        }
 
         if (!code) {
-          return Response.redirect(`${baseUrl}/login?error=no_code`, 302)
+          return new Response(null, {
+            status: 302,
+            headers: { location: '/login?error=no_code' },
+          })
         }
 
         const clientId = process.env.GITHUB_CLIENT_ID
         const clientSecret = process.env.GITHUB_CLIENT_SECRET
 
         if (!clientId || !clientSecret) {
-          return Response.redirect(`${baseUrl}/login?error=oauth_not_configured`, 302)
+          return new Response(null, {
+            status: 302,
+            headers: { location: '/login?error=oauth_not_configured' },
+          })
         }
 
         try {
@@ -34,6 +47,7 @@ export const Route = createFileRoute('/api/auth/github/callback')({
             headers: {
               'content-type': 'application/json',
               accept: 'application/json',
+              'user-agent': 'Devverse-App',
             },
             body: JSON.stringify({
               client_id: clientId,
@@ -50,7 +64,11 @@ export const Route = createFileRoute('/api/auth/github/callback')({
 
           if (!tokenData.access_token) {
             console.error('GitHub token exchange gagal:', tokenData)
-            return Response.redirect(`${baseUrl}/login?error=token_failed`, 302)
+            const errCode = tokenData.error || 'token_failed'
+            return new Response(null, {
+              status: 302,
+              headers: { location: `/login?error=${encodeURIComponent(errCode)}` },
+            })
           }
 
           const accessToken = tokenData.access_token
@@ -65,7 +83,11 @@ export const Route = createFileRoute('/api/auth/github/callback')({
           })
 
           if (!userRes.ok) {
-            return Response.redirect(`${baseUrl}/login?error=user_fetch_failed`, 302)
+            console.error('Ambil profil GitHub gagal:', userRes.status, await userRes.text())
+            return new Response(null, {
+              status: 302,
+              headers: { location: '/login?error=user_fetch_failed' },
+            })
           }
 
           const gitUser = (await userRes.json()) as {
@@ -92,7 +114,7 @@ export const Route = createFileRoute('/api/auth/github/callback')({
           const { clearCookie } = await claimPendingAnalysis(request, user.id)
 
           const headers = new Headers({
-            location: `${baseUrl}/dashboard`,
+            location: '/dashboard',
           })
           headers.append('Set-Cookie', sessionCookie)
           if (clearCookie) {
@@ -101,8 +123,11 @@ export const Route = createFileRoute('/api/auth/github/callback')({
 
           return new Response(null, { status: 302, headers })
         } catch (err) {
-          console.error('OAuth callback error:', err)
-          return Response.redirect(`${baseUrl}/login?error=oauth_error`, 302)
+          console.error('OAuth callback exception:', err)
+          return new Response(null, {
+            status: 302,
+            headers: { location: '/login?error=oauth_error' },
+          })
         }
       },
     },

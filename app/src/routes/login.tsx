@@ -2,9 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/login')({
   component: LoginPage,
-  validateSearch: (search: Record<string, unknown>) => ({
-    error: typeof search.error === 'string' ? search.error : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { error?: string } => search,
   head: () => ({
     meta: [
       { title: 'Masuk dengan GitHub — DEVVERSE' },
