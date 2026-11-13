@@ -2,7 +2,7 @@ import { PGlite } from '@electric-sql/pglite'
 import { mkdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
-const MIGRATIONS = ['0001_init', '0002_analysis', '0003_auth_and_assistant'] as const
+const MIGRATIONS = ['0001_init', '0002_analysis', '0003_auth_and_assistant', '0004_github_oauth'] as const
 const migrationsDir = join(process.cwd(), 'db', 'migrations')
 
 declare global {

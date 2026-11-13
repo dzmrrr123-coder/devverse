@@ -95,6 +95,34 @@ function LoginPage() {
               : 'Daftarkan namamu untuk mulai menyimpan portofolio repositori dan bimbingan AI.'}
           </p>
 
+          {/* Tombol Utama: GitHub OAuth Resmi */}
+          <div style={{ marginBottom: '16px' }}>
+            <a
+              href="/api/auth/github"
+              className="control submit-control"
+              style={{
+                width: '100%',
+                padding: '13px 18px',
+                fontSize: '13px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                textDecoration: 'none',
+                boxShadow: '0 4px 16px rgba(242, 178, 103, 0.35)',
+              }}
+            >
+              <span style={{ fontSize: '16px' }}>🐙</span>
+              <span>Masuk dengan Akun GitHub</span>
+            </a>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '8px 0 16px' }}>
+            <div style={{ flex: 1, height: '1px', background: 'var(--color-hairline)' }} />
+            <span className="micro-label quiet">ATAU VIA USERNAME</span>
+            <div style={{ flex: 1, height: '1px', background: 'var(--color-hairline)' }} />
+          </div>
+
           {/* Tab Selector: Masuk vs Daftar */}
           <div className="auth-tab-bar">
             <button

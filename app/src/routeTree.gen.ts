@@ -17,8 +17,11 @@ import { Route as ApiAnalyzeRouteImport } from './routes/api/analyze'
 import { Route as RIdRouteImport } from './routes/r.$id'
 import { Route as ApiAssistantChatRouteImport } from './routes/api/assistant/chat'
 import { Route as ApiAuthDevRouteImport } from './routes/api/auth/dev'
+import { Route as ApiAuthGithubRouteImport } from './routes/api/auth/github'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
 import { Route as ApiProjectsTimelineRouteImport } from './routes/api/projects/timeline'
+import { Route as ApiUserReposRouteImport } from './routes/api/user/repos'
+import { Route as ApiAuthGithubCallbackRouteImport } from './routes/api/auth/github.callback'
 import { Route as ApiBadgeOwnerRepoRouteImport } from './routes/api/badge.$owner.$repo'
 
 const IndexRoute = IndexRouteImport.update({
@@ -61,6 +64,11 @@ const ApiAuthDevRoute = ApiAuthDevRouteImport.update({
   path: '/api/auth/dev',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthGithubRoute = ApiAuthGithubRouteImport.update({
+  id: '/api/auth/github',
+  path: '/api/auth/github',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthLogoutRoute = ApiAuthLogoutRouteImport.update({
   id: '/api/auth/logout',
   path: '/api/auth/logout',
@@ -70,6 +78,16 @@ const ApiProjectsTimelineRoute = ApiProjectsTimelineRouteImport.update({
   id: '/api/projects/timeline',
   path: '/api/projects/timeline',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ApiUserReposRoute = ApiUserReposRouteImport.update({
+  id: '/api/user/repos',
+  path: '/api/user/repos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthGithubCallbackRoute = ApiAuthGithubCallbackRouteImport.update({
+  id: '/callback',
+  path: '/callback',
+  getParentRoute: () => ApiAuthGithubRoute,
 } as any)
 const ApiBadgeOwnerRepoRoute = ApiBadgeOwnerRepoRouteImport.update({
   id: '/api/badge/$owner/$repo',
@@ -86,8 +104,11 @@ export interface FileRoutesByFullPath {
   '/r/$id': typeof RIdRoute
   '/api/assistant/chat': typeof ApiAssistantChatRoute
   '/api/auth/dev': typeof ApiAuthDevRoute
+  '/api/auth/github': typeof ApiAuthGithubRouteWithChildren
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/projects/timeline': typeof ApiProjectsTimelineRoute
+  '/api/user/repos': typeof ApiUserReposRoute
+  '/api/auth/github/callback': typeof ApiAuthGithubCallbackRoute
   '/api/badge/$owner/$repo': typeof ApiBadgeOwnerRepoRoute
 }
 export interface FileRoutesByTo {
@@ -99,8 +120,11 @@ export interface FileRoutesByTo {
   '/r/$id': typeof RIdRoute
   '/api/assistant/chat': typeof ApiAssistantChatRoute
   '/api/auth/dev': typeof ApiAuthDevRoute
+  '/api/auth/github': typeof ApiAuthGithubRouteWithChildren
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/projects/timeline': typeof ApiProjectsTimelineRoute
+  '/api/user/repos': typeof ApiUserReposRoute
+  '/api/auth/github/callback': typeof ApiAuthGithubCallbackRoute
   '/api/badge/$owner/$repo': typeof ApiBadgeOwnerRepoRoute
 }
 export interface FileRoutesById {
@@ -113,8 +137,11 @@ export interface FileRoutesById {
   '/r/$id': typeof RIdRoute
   '/api/assistant/chat': typeof ApiAssistantChatRoute
   '/api/auth/dev': typeof ApiAuthDevRoute
+  '/api/auth/github': typeof ApiAuthGithubRouteWithChildren
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/projects/timeline': typeof ApiProjectsTimelineRoute
+  '/api/user/repos': typeof ApiUserReposRoute
+  '/api/auth/github/callback': typeof ApiAuthGithubCallbackRoute
   '/api/badge/$owner/$repo': typeof ApiBadgeOwnerRepoRoute
 }
 export interface FileRouteTypes {
@@ -128,8 +155,11 @@ export interface FileRouteTypes {
     | '/r/$id'
     | '/api/assistant/chat'
     | '/api/auth/dev'
+    | '/api/auth/github'
     | '/api/auth/logout'
     | '/api/projects/timeline'
+    | '/api/user/repos'
+    | '/api/auth/github/callback'
     | '/api/badge/$owner/$repo'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -141,8 +171,11 @@ export interface FileRouteTypes {
     | '/r/$id'
     | '/api/assistant/chat'
     | '/api/auth/dev'
+    | '/api/auth/github'
     | '/api/auth/logout'
     | '/api/projects/timeline'
+    | '/api/user/repos'
+    | '/api/auth/github/callback'
     | '/api/badge/$owner/$repo'
   id:
     | '__root__'
@@ -154,8 +187,11 @@ export interface FileRouteTypes {
     | '/r/$id'
     | '/api/assistant/chat'
     | '/api/auth/dev'
+    | '/api/auth/github'
     | '/api/auth/logout'
     | '/api/projects/timeline'
+    | '/api/user/repos'
+    | '/api/auth/github/callback'
     | '/api/badge/$owner/$repo'
   fileRoutesById: FileRoutesById
 }
@@ -168,8 +204,10 @@ export interface RootRouteChildren {
   RIdRoute: typeof RIdRoute
   ApiAssistantChatRoute: typeof ApiAssistantChatRoute
   ApiAuthDevRoute: typeof ApiAuthDevRoute
+  ApiAuthGithubRoute: typeof ApiAuthGithubRouteWithChildren
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
   ApiProjectsTimelineRoute: typeof ApiProjectsTimelineRoute
+  ApiUserReposRoute: typeof ApiUserReposRoute
   ApiBadgeOwnerRepoRoute: typeof ApiBadgeOwnerRepoRoute
 }
 
@@ -231,6 +269,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthDevRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/github': {
+      id: '/api/auth/github'
+      path: '/api/auth/github'
+      fullPath: '/api/auth/github'
+      preLoaderRoute: typeof ApiAuthGithubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/logout': {
       id: '/api/auth/logout'
       path: '/api/auth/logout'
@@ -245,6 +290,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiProjectsTimelineRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/user/repos': {
+      id: '/api/user/repos'
+      path: '/api/user/repos'
+      fullPath: '/api/user/repos'
+      preLoaderRoute: typeof ApiUserReposRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/github/callback': {
+      id: '/api/auth/github/callback'
+      path: '/callback'
+      fullPath: '/api/auth/github/callback'
+      preLoaderRoute: typeof ApiAuthGithubCallbackRouteImport
+      parentRoute: typeof ApiAuthGithubRoute
+    }
     '/api/badge/$owner/$repo': {
       id: '/api/badge/$owner/$repo'
       path: '/api/badge/$owner/$repo'
@@ -255,6 +314,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ApiAuthGithubRouteChildren {
+  ApiAuthGithubCallbackRoute: typeof ApiAuthGithubCallbackRoute
+}
+
+const ApiAuthGithubRouteChildren: ApiAuthGithubRouteChildren = {
+  ApiAuthGithubCallbackRoute: ApiAuthGithubCallbackRoute,
+}
+
+const ApiAuthGithubRouteWithChildren = ApiAuthGithubRoute._addFileChildren(
+  ApiAuthGithubRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
@@ -264,8 +335,10 @@ const rootRouteChildren: RootRouteChildren = {
   RIdRoute: RIdRoute,
   ApiAssistantChatRoute: ApiAssistantChatRoute,
   ApiAuthDevRoute: ApiAuthDevRoute,
+  ApiAuthGithubRoute: ApiAuthGithubRouteWithChildren,
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
   ApiProjectsTimelineRoute: ApiProjectsTimelineRoute,
+  ApiUserReposRoute: ApiUserReposRoute,
   ApiBadgeOwnerRepoRoute: ApiBadgeOwnerRepoRoute,
 }
 export const routeTree = rootRouteImport

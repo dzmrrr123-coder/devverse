@@ -6,6 +6,7 @@ import { QUICK_ACTIONS } from '../engine/assistant-types'
 import type { QuickAction } from '../engine/assistant-types'
 import { TimelineView } from '../components/timeline-view'
 import type { TimelineMilestone } from '../engine/timeline'
+import type { GitHubRepoSummary } from './api/user/repos'
 
 export const Route = createFileRoute('/dashboard')({
   beforeLoad: async () => {
@@ -46,9 +47,25 @@ function DashboardPage() {
     data.projects[0] ?? null,
   )
 
-  const [colView, setColView] = useState<'projects' | 'timeline'>('projects')
+  const [colView, setColView] = useState<'projects' | 'timeline' | 'github'>('projects')
   const [timeline, setTimeline] = useState<TimelineMilestone[]>([])
   const [loadingTimeline, setLoadingTimeline] = useState(false)
+
+  const [gitHubRepos, setGitHubRepos] = useState<GitHubRepoSummary[]>([])
+  const [loadingRepos, setLoadingRepos] = useState(false)
+
+  useEffect(() => {
+    setLoadingRepos(true)
+    fetch('/api/user/repos', { credentials: 'include' })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.ok && Array.isArray(d.repos)) {
+          setGitHubRepos(d.repos)
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoadingRepos(false))
+  }, [])
 
   const [apiKey, setApiKey] = useState('')
   const [showKeyModal, setShowKeyModal] = useState(false)
@@ -255,19 +272,27 @@ function DashboardPage() {
         {/* Kolom Kiri: Portofolio Proyek */}
         <section className="dashboard-col projects-col" aria-labelledby="projects-heading">
           <div className="col-header">
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
               <button
                 type="button"
                 className={`control ${colView === 'projects' ? 'submit-control' : ''}`}
-                style={{ padding: '4px 10px', fontSize: '10px' }}
+                style={{ padding: '4px 8px', fontSize: '10px' }}
                 onClick={() => setColView('projects')}
               >
                 PROYEK ({projects.length})
               </button>
               <button
                 type="button"
+                className={`control ${colView === 'github' ? 'submit-control' : ''}`}
+                style={{ padding: '4px 8px', fontSize: '10px' }}
+                onClick={() => setColView('github')}
+              >
+                REPO GITHUB {gitHubRepos.length > 0 ? `(${gitHubRepos.length})` : ''}
+              </button>
+              <button
+                type="button"
                 className={`control ${colView === 'timeline' ? 'submit-control' : ''}`}
-                style={{ padding: '4px 10px', fontSize: '10px' }}
+                style={{ padding: '4px 8px', fontSize: '10px' }}
                 onClick={() => setColView('timeline')}
                 disabled={!selectedProject}
               >
@@ -275,7 +300,11 @@ function DashboardPage() {
               </button>
             </div>
             <span className="project-count-badge">
-              {colView === 'projects' ? 'WORKSPACE' : selectedProject ? selectedProject.repoFullName : 'PILIH REPO'}
+              {colView === 'projects'
+                ? 'WORKSPACE'
+                : colView === 'github'
+                  ? 'LANGSUNG DARI GITHUB'
+                  : selectedProject ? selectedProject.repoFullName : 'PILIH REPO'}
             </span>
           </div>
 
@@ -350,6 +379,47 @@ function DashboardPage() {
                 )}
               </div>
             </>
+          ) : colView === 'github' ? (
+            <div className="projects-list" role="list">
+              {loadingRepos ? (
+                <p className="font-label text-xs quiet" style={{ padding: '20px 0', textAlign: 'center' }}>
+                  Mengambil repositori dari GitHub akunmu...
+                </p>
+              ) : gitHubRepos.length === 0 ? (
+                <div className="empty-projects">
+                  <p className="micro-label signal">REPO TIDAK DITEMUKAN</p>
+                  <p>Tidak ada repositori publik yang terdeteksi untuk akun GitHub ini.</p>
+                </div>
+              ) : (
+                gitHubRepos.map((gr) => (
+                  <article key={gr.id} className="project-card">
+                    <div className="project-card-top">
+                      <span className="project-name">{gr.fullName}</span>
+                      <span className="font-label text-xs quiet">{gr.language || 'Code'}</span>
+                    </div>
+                    {gr.description ? (
+                      <p className="font-display text-xs quiet" style={{ margin: 0, lineHeight: 1.4 }}>
+                        {gr.description}
+                      </p>
+                    ) : null}
+                    <div className="project-card-meta">
+                      <span className="quiet">{gr.defaultBranch}</span>
+                      <button
+                        type="button"
+                        className="control submit-control"
+                        style={{ padding: '4px 10px', fontSize: '10px' }}
+                        onClick={() => {
+                          setInputUrl(gr.htmlUrl)
+                          setColView('projects')
+                        }}
+                      >
+                        Pilih & Analisis &rarr;
+                      </button>
+                    </div>
+                  </article>
+                ))
+              )}
+            </div>
           ) : (
             <div className="timeline-col-content">
               {loadingTimeline ? (

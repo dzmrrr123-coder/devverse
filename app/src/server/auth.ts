@@ -13,6 +13,7 @@ export type User = {
   username: string
   displayName: string | null
   avatarUrl: string | null
+  githubToken?: string | null
   createdAt: string
 }
 
@@ -114,9 +115,10 @@ export async function getServerSession(request: Request): Promise<User | null> {
     username: string
     display_name: string | null
     avatar_url: string | null
+    github_token: string | null
     created_at: string
   }>(
-    `select u.id, u.github_id, u.username, u.display_name, u.avatar_url, u.created_at
+    `select u.id, u.github_id, u.username, u.display_name, u.avatar_url, u.github_token, u.created_at
      from sessions s
      join users u on u.id = s.user_id
      where s.id = $1 and s.expires_at > now()`,
@@ -132,6 +134,7 @@ export async function getServerSession(request: Request): Promise<User | null> {
     username: row.username,
     displayName: row.display_name,
     avatarUrl: row.avatar_url,
+    githubToken: row.github_token,
     createdAt: row.created_at,
   }
 }
@@ -155,6 +158,7 @@ export async function getOrCreateUser(profile: {
   username: string
   displayName?: string | null
   avatarUrl?: string | null
+  githubToken?: string | null
 }): Promise<User> {
   const db = await getDatabase()
   const normalizedGithubId = profile.githubId.trim().toLowerCase()
@@ -166,21 +170,24 @@ export async function getOrCreateUser(profile: {
     username: string
     display_name: string | null
     avatar_url: string | null
+    github_token: string | null
     created_at: string
   }>(
-    `insert into users (id, github_id, username, display_name, avatar_url)
-     values ($1, $2, $3, $4, $5)
+    `insert into users (id, github_id, username, display_name, avatar_url, github_token)
+     values ($1, $2, $3, $4, $5, $6)
      on conflict (github_id) do update set
        username = excluded.username,
        display_name = coalesce(excluded.display_name, users.display_name),
-       avatar_url = coalesce(excluded.avatar_url, users.avatar_url)
-     returning id, github_id, username, display_name, avatar_url, created_at`,
+       avatar_url = coalesce(excluded.avatar_url, users.avatar_url),
+       github_token = coalesce(excluded.github_token, users.github_token)
+     returning id, github_id, username, display_name, avatar_url, github_token, created_at`,
     [
       userId,
       normalizedGithubId,
       profile.username,
       profile.displayName ?? null,
       profile.avatarUrl ?? null,
+      profile.githubToken ?? null,
     ],
   )
 
@@ -191,6 +198,7 @@ export async function getOrCreateUser(profile: {
     username: row.username,
     displayName: row.display_name,
     avatarUrl: row.avatar_url,
+    githubToken: row.github_token,
     createdAt: String(row.created_at),
   }
 }
