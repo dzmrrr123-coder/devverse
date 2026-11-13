@@ -40,11 +40,14 @@ export async function handleAssistantChatRequest(
     prompt?: string
     analysisId?: string
     apiKey?: string
+    model?: string
   }
 
   // Header takes precedence, then body, then server env
   const headerKey = request.headers.get('x-gemini-api-key')
   const clientKey = headerKey || payload.apiKey
+  const headerModel = request.headers.get('x-gemini-model')
+  const preferredModel = headerModel || payload.model || 'gemini-3.8-flash-high'
 
   let apiKeyOverride = options?.apiKeyOverride
 
@@ -79,9 +82,18 @@ export async function handleAssistantChatRequest(
       action: payload.action,
       userPrompt: payload.prompt ?? '',
       apiKeyOverride,
+      preferredModel,
     })
 
-    return json({ ok: true, reply: res.reply, isLiveAi: res.isLiveAi }, 200)
+    return json(
+      {
+        ok: true,
+        reply: res.reply,
+        isLiveAi: res.isLiveAi,
+        modelUsed: res.modelUsed,
+      },
+      200,
+    )
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Gagal menghubungi asisten AI.'
     return json({ error: 'assistant_error', message }, 500)

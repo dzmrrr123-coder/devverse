@@ -35,6 +35,7 @@ type ChatMessage = {
   id: string
   role: 'user' | 'assistant'
   content: string
+  modelUsed?: string
 }
 
 function DashboardPage() {
@@ -66,6 +67,7 @@ function DashboardPage() {
   }, [])
 
   const [apiKey, setApiKey] = useState('')
+  const [selectedModel, setSelectedModel] = useState('gemini-3.8-flash-high')
   const [showKeyModal, setShowKeyModal] = useState(false)
   const [tempKey, setTempKey] = useState('')
 
@@ -75,6 +77,10 @@ function DashboardPage() {
       if (stored) {
         setApiKey(stored)
         setTempKey(stored)
+      }
+      const storedModel = localStorage.getItem('devverse_gemini_model')
+      if (storedModel) {
+        setSelectedModel(storedModel)
       }
     } catch {}
   }, [])
@@ -209,11 +215,12 @@ function DashboardPage() {
           prompt: promptToSend,
           analysisId: selectedProject?.analysisId ?? null,
           apiKey: effectiveKey || undefined,
+          model: selectedModel,
         }),
       })
 
       const responseData = (await res.json()) as
-        | { ok: true; reply: string }
+        | { ok: true; reply: string; modelUsed?: string }
         | { error: string; message: string }
 
       if (!res.ok || 'error' in responseData) {
@@ -233,6 +240,7 @@ function DashboardPage() {
             id: `a_${Date.now()}`,
             role: 'assistant',
             content: responseData.reply,
+            modelUsed: responseData.modelUsed,
           },
         ])
       }
@@ -533,9 +541,16 @@ function DashboardPage() {
                   key={msg.id}
                   className={`chat-bubble ${msg.role === 'user' ? 'is-user' : 'is-assistant'}`}
                 >
-                  <p className="chat-role micro-label quiet">
-                    {msg.role === 'user' ? 'KAMU' : 'ASISTEN AI'}
-                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <p className="chat-role micro-label quiet">
+                      {msg.role === 'user' ? 'KAMU' : 'ASISTEN AI'}
+                    </p>
+                    {msg.modelUsed ? (
+                      <span className="micro-label pass" style={{ fontSize: '9px', letterSpacing: '0.05em' }}>
+                        ⚡ {msg.modelUsed}
+                      </span>
+                    ) : null}
+                  </div>
                   <div className="chat-content">
                     <pre className="chat-text">{msg.content}</pre>
                   </div>
@@ -625,6 +640,30 @@ function DashboardPage() {
               >
                 Dapatkan API Key gratis di Google AI Studio &rarr;
               </a>
+            </div>
+
+            <div className="login-field">
+              <label htmlFor="gemini-model-select" className="micro-label quiet">
+                PILIH MODEL AI (GOOGLE)
+              </label>
+              <select
+                id="gemini-model-select"
+                className="url-input login-input"
+                style={{ cursor: 'pointer' }}
+                value={selectedModel}
+                onChange={(e) => {
+                  setSelectedModel(e.target.value)
+                  try {
+                    localStorage.setItem('devverse_gemini_model', e.target.value)
+                  } catch {}
+                }}
+              >
+                <option value="gemini-3.8-flash-high">⚡ Gemini 3.8 Flash (High) — Flagship Rekomendasi</option>
+                <option value="gemini-3.8-flash">⚡ Gemini 3.8 Flash — Cepat & Responsif</option>
+                <option value="gemini-2.0-flash-thinking-exp-01-21">🧠 Gemini 2.0 Flash Thinking — Penalaran Dalam</option>
+                <option value="gemini-2.0-flash">🚀 Gemini 2.0 Flash — Standar Cepat</option>
+                <option value="gemini-1.5-pro">💎 Gemini 1.5 Pro — Kapasitas Konteks Panjang</option>
+              </select>
             </div>
 
             <div className="modal-actions">

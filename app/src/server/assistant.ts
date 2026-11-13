@@ -72,8 +72,18 @@ export async function callGeminiApi(
   apiKey: string,
   systemInstruction: string,
   userMessage: string,
-): Promise<string> {
-  const models = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro']
+  preferredModel?: string,
+): Promise<{ text: string; modelUsed: string }> {
+  const models = [
+    preferredModel,
+    'gemini-3.8-flash-high',
+    'gemini-3.8-flash',
+    'gemini-2.0-flash-thinking-exp-01-21',
+    'gemini-2.0-flash',
+    'gemini-1.5-pro',
+    'gemini-1.5-flash',
+  ].filter(Boolean) as string[]
+
   let lastError: Error | null = null
 
   for (const model of models) {
@@ -95,7 +105,7 @@ export async function callGeminiApi(
           ],
           generationConfig: {
             temperature: 0.7,
-            maxOutputTokens: 2048,
+            maxOutputTokens: 3072,
           },
         }),
       })
@@ -122,7 +132,7 @@ export async function callGeminiApi(
       }
 
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text
-      if (text) return text
+      if (text) return { text, modelUsed: model }
     } catch (err) {
       lastError = err instanceof Error ? err : new Error(String(err))
       if (lastError.message.includes('404') || lastError.message.toLowerCase().includes('not found')) continue
@@ -140,7 +150,8 @@ export async function askAssistant(params: {
   action?: QuickAction
   userPrompt: string
   apiKeyOverride?: string
-}): Promise<{ reply: string; isLiveAi: boolean }> {
+  preferredModel?: string
+}): Promise<{ reply: string; isLiveAi: boolean; modelUsed?: string }> {
   const prompt =
     params.action && params.action !== 'general_chat'
       ? QUICK_ACTIONS[params.action].prompt
@@ -156,11 +167,14 @@ export async function askAssistant(params: {
 
   let reply = ''
   let isLiveAi = false
+  let modelUsed: string | undefined = undefined
 
   if (apiKey) {
     try {
-      reply = await callGeminiApi(apiKey, systemContext, prompt)
+      const res = await callGeminiApi(apiKey, systemContext, prompt, params.preferredModel)
+      reply = res.text
       isLiveAi = true
+      modelUsed = res.modelUsed
     } catch (err) {
       const errText = err instanceof Error ? err.message : String(err)
       console.error('Panggilan Gemini API gagal:', errText)
@@ -188,7 +202,7 @@ export async function askAssistant(params: {
     [msgAssistant, params.userId, params.analysisId ?? null, 'assistant', reply],
   )
 
-  return { reply, isLiveAi }
+  return { reply, isLiveAi, modelUsed }
 }
 
 function generateFallbackReply(
