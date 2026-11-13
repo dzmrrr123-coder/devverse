@@ -5,22 +5,31 @@ export const Route = createFileRoute('/login')({
   component: LoginPage,
   head: () => ({
     meta: [
-      { title: 'Masuk — DEVVERSE' },
+      { title: 'Masuk / Daftar — DEVVERSE' },
       {
         name: 'description',
-        content: 'Masuk ke Devverse untuk membuka Dashboard siswa dan Asisten AI.',
+        content: 'Masuk atau buat akun Devverse untuk membuka Dashboard siswa dan Asisten AI.',
       },
     ],
   }),
 })
 
+type AuthTab = 'login' | 'register'
+
 function LoginPage() {
+  const [tab, setTab] = useState<AuthTab>('login')
   const [loading, setLoading] = useState(false)
-  const [username, setUsername] = useState('siswa_smk')
+  const [username, setUsername] = useState('')
+  const [displayName, setDisplayName] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault()
+  async function submitAuth(uname: string, dname?: string) {
+    const trimmedUser = uname.trim()
+    if (!trimmedUser) {
+      setError('Username tidak boleh kosong.')
+      return
+    }
+
     setLoading(true)
     setError(null)
 
@@ -29,14 +38,14 @@ function LoginPage() {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          username: username.trim() || 'siswa_smk',
-          displayName: username === 'siswa_smk' ? 'Rizky Siswa SMK' : username,
+          username: trimmedUser,
+          displayName: dname?.trim() || trimmedUser,
         }),
       })
 
       const data = (await res.json()) as { ok: boolean; message?: string }
       if (!res.ok || !data.ok) {
-        setError(data.message || 'Gagal masuk.')
+        setError(data.message || 'Gagal memproses sesi.')
         setLoading(false)
         return
       }
@@ -46,6 +55,16 @@ function LoginPage() {
       setError('Koneksi terputus. Silakan coba lagi.')
       setLoading(false)
     }
+  }
+
+  function handleFormSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    submitAuth(username, tab === 'register' ? displayName : undefined)
+  }
+
+  function handleDemoLogin() {
+    setUsername('siswa_smk')
+    submitAuth('siswa_smk', 'Rizky Siswa SMK')
   }
 
   return (
@@ -62,16 +81,62 @@ function LoginPage() {
       <main className="entry-shell" style={{ maxWidth: '480px', margin: 'auto' }}>
         <section className="login-card">
           <p className="micro-label quiet">AUTENTIKASI SISWA</p>
-          <h1 className="login-title">Masuk ke Devverse Cockpit.</h1>
+          <h1 className="login-title">
+            {tab === 'login' ? 'Masuk ke Devverse.' : 'Buat Akun Devverse.'}
+          </h1>
           <p className="login-desc">
-            Simpan portofolio proyekmu, pantau riwayat kenaikan level, dan dapatkan bimbingan
-            langsung dari Asisten AI untuk pengembangan fitur selanjutnya.
+            {tab === 'login'
+              ? 'Masukkan username akunmu untuk membuka Dashboard proyek dan Asisten AI.'
+              : 'Daftarkan namamu untuk mulai menyimpan portofolio repositori dan bimbingan AI.'}
           </p>
 
-          <form onSubmit={handleLogin} className="login-form">
+          {/* Tab Selector: Masuk vs Daftar */}
+          <div className="auth-tab-bar" style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--color-hairline)', paddingBottom: '12px' }}>
+            <button
+              type="button"
+              className={`control ${tab === 'login' ? 'submit-control' : ''}`}
+              style={{ flex: 1, padding: '8px 12px' }}
+              onClick={() => {
+                setTab('login')
+                setError(null)
+              }}
+            >
+              Masuk (Login)
+            </button>
+            <button
+              type="button"
+              className={`control ${tab === 'register' ? 'submit-control' : ''}`}
+              style={{ flex: 1, padding: '8px 12px' }}
+              onClick={() => {
+                setTab('register')
+                setError(null)
+              }}
+            >
+              Daftar Baru (Register)
+            </button>
+          </div>
+
+          <form onSubmit={handleFormSubmit} className="login-form">
+            {tab === 'register' ? (
+              <div className="login-field">
+                <label htmlFor="display-name-input" className="micro-label quiet">
+                  NAMA LENGKAP / PANGGILAN
+                </label>
+                <input
+                  id="display-name-input"
+                  type="text"
+                  className="url-input login-input"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  placeholder="contoh: Rizky Fajar"
+                  disabled={loading}
+                />
+              </div>
+            ) : null}
+
             <div className="login-field">
               <label htmlFor="username-input" className="micro-label quiet">
-                NAMA PENGGUNA / GITHUB USERNAME
+                GITHUB USERNAME / NAMA PENGGUNA
               </label>
               <input
                 id="username-input"
@@ -79,8 +144,9 @@ function LoginPage() {
                 className="url-input login-input"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="misal: rizkyfajar"
+                placeholder="contoh: rizkyfajar atau nama akunmu"
                 disabled={loading}
+                autoFocus
               />
             </div>
 
@@ -92,12 +158,28 @@ function LoginPage() {
             ) : null}
 
             <button type="submit" className="control submit-control login-btn" disabled={loading}>
-              {loading ? 'Memproses Sesi...' : 'Masuk ke Dashboard Siswa'}
+              {loading
+                ? 'Memproses...'
+                : tab === 'login'
+                  ? 'Masuk ke Dashboard'
+                  : 'Daftar & Buka Dashboard'}
             </button>
 
+            <div style={{ textAlign: 'center', paddingTop: '8px', borderTop: '1px solid var(--color-hairline)' }}>
+              <button
+                type="button"
+                className="example-chip"
+                onClick={handleDemoLogin}
+                disabled={loading}
+                style={{ width: '100%', padding: '8px', fontSize: '11px', color: 'var(--color-signal)', borderColor: 'var(--color-signal)' }}
+              >
+                Coba Masuk Cepat: Akun Siswa Demo
+              </button>
+            </div>
+
             <p className="login-disclaimer">
-              Otentikasi aman berbasis sesi bertanda tangan. Sesi ini memberi akses penuh ke Asisten
-              AI & Workspace Proyek.
+              Tanpa kata sandi rumit. Devverse menggunakan sesi terenkripsi aman untuk menyimpan
+              portofolio kodemu.
             </p>
           </form>
         </section>

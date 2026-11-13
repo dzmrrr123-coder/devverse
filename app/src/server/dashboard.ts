@@ -35,14 +35,13 @@ export const getDashboardData = createServerFn({ method: 'GET' })
     const projectsRes = await db.query<{
       id: string
       analysis_id: string
-      full_name: string
+      owner: string
+      repo: string
       repo_url: string
-      reached_level: number | null
-      frontier_level: number | null
       analyzed_at: string
       created_at: string
     }>(
-      `select sp.id, sp.analysis_id, a.full_name, a.repo_url, a.reached_level, a.frontier_level, a.created_at as analyzed_at, sp.created_at
+      `select sp.id, sp.analysis_id, a.owner, a.repo, a.repo_url, a.created_at as analyzed_at, sp.created_at
        from saved_projects sp
        join analysis a on a.id = sp.analysis_id
        where sp.user_id = $1
@@ -50,16 +49,24 @@ export const getDashboardData = createServerFn({ method: 'GET' })
       [user.id],
     )
 
-    const projects: SavedProjectItem[] = projectsRes.rows.map((r) => ({
-      id: r.id,
-      analysisId: r.analysis_id,
-      repoFullName: r.full_name,
-      repoUrl: r.repo_url,
-      reachedLevel: r.reached_level,
-      frontierLevel: r.frontier_level,
-      analyzedAt: r.analyzed_at,
-      savedAt: r.created_at,
-    }))
+    const { pgliteAnalysisStore } = await import('./store')
+    const store = pgliteAnalysisStore()
+
+    const projects: SavedProjectItem[] = await Promise.all(
+      projectsRes.rows.map(async (r) => {
+        const a = await store.find(r.analysis_id)
+        return {
+          id: r.id,
+          analysisId: r.analysis_id,
+          repoFullName: a?.repo.fullName ?? `${r.owner}/${r.repo}`,
+          repoUrl: a?.repo.url ?? r.repo_url,
+          reachedLevel: a?.reachedLevel ?? null,
+          frontierLevel: a?.frontierLevel ?? null,
+          analyzedAt: a?.analyzedAt ?? String(r.analyzed_at),
+          savedAt: String(r.created_at),
+        }
+      }),
+    )
 
     const recentChats = await getConversationHistory(user.id)
 
