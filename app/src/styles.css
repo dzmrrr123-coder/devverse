@@ -1019,17 +1019,20 @@
   }
 
   .submit-control {
-    background-color: var(--color-signal);
-    color: var(--color-ink);
-    border: 1px solid var(--color-signal);
-    font-weight: 600;
-    padding: 8px 18px;
+    background: linear-gradient(180deg, #FAD291 0%, #F2B267 100%) !important;
+    color: #0B1013 !important;
+    border: 1px solid #FCDCA4 !important;
+    font-weight: 700 !important;
+    padding: 10px 20px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 4px 16px rgba(242, 178, 103, 0.35) !important;
   }
 
   .submit-control:hover:not(:disabled) {
-    background-color: #e5a75d;
-    border-color: #e5a75d;
-    color: var(--color-ink);
+    background: linear-gradient(180deg, #FEE0A7 0%, #F7BC72 100%) !important;
+    border-color: #FFF0D0 !important;
+    color: #070B0D !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 6px 22px rgba(242, 178, 103, 0.5) !important;
+    transform: translateY(-1px);
   }
 
   .stage-tracker {
@@ -1496,10 +1499,67 @@
     box-shadow: 0 0 12px rgba(242, 178, 103, 0.25);
   }
 
+  .auth-tab-bar {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--color-hairline);
+    padding-bottom: 14px;
+  }
+
+  .auth-tab-btn {
+    flex: 1;
+    font-family: var(--font-label);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 10px 14px;
+    border-radius: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--color-muted);
+    cursor: pointer;
+    transition: all 180ms ease;
+  }
+
+  .auth-tab-btn:hover {
+    color: #FFFFFF;
+    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .auth-tab-btn.is-active {
+    background: linear-gradient(180deg, rgba(242, 178, 103, 0.15) 0%, rgba(242, 178, 103, 0.04) 100%);
+    border: 1px solid var(--color-signal);
+    color: #FFDDA6;
+    box-shadow: 0 0 14px rgba(242, 178, 103, 0.2);
+  }
+
+  .demo-btn {
+    width: 100%;
+    padding: 11px 16px;
+    font-family: var(--font-label);
+    font-size: 11px;
+    font-weight: 600;
+    color: #FFDDA6;
+    background: linear-gradient(180deg, rgba(42, 34, 22, 0.75) 0%, rgba(24, 19, 13, 0.9) 100%);
+    border: 1px solid rgba(242, 178, 103, 0.4);
+    border-radius: 2px;
+    cursor: pointer;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 16px rgba(242, 178, 103, 0.15);
+    transition: all 180ms ease;
+  }
+
+  .demo-btn:hover {
+    border-color: var(--color-signal);
+    color: #FFFFFF;
+    background: linear-gradient(180deg, rgba(55, 44, 28, 0.9) 0%, rgba(32, 25, 17, 0.95) 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 0 22px rgba(242, 178, 103, 0.35);
+    transform: translateY(-1px);
+  }
+
   .login-btn {
     width: 100%;
     padding: 12px;
-    font-weight: 600;
+    font-weight: 700;
   }
 
   .login-disclaimer {

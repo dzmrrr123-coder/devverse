@@ -92,11 +92,10 @@ function LoginPage() {
           </p>
 
           {/* Tab Selector: Masuk vs Daftar */}
-          <div className="auth-tab-bar" style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--color-hairline)', paddingBottom: '12px' }}>
+          <div className="auth-tab-bar">
             <button
               type="button"
-              className={`control ${tab === 'login' ? 'submit-control' : ''}`}
-              style={{ flex: 1, padding: '8px 12px' }}
+              className={`auth-tab-btn ${tab === 'login' ? 'is-active' : ''}`}
               onClick={() => {
                 setTab('login')
                 setError(null)
@@ -106,8 +105,7 @@ function LoginPage() {
             </button>
             <button
               type="button"
-              className={`control ${tab === 'register' ? 'submit-control' : ''}`}
-              style={{ flex: 1, padding: '8px 12px' }}
+              className={`auth-tab-btn ${tab === 'register' ? 'is-active' : ''}`}
               onClick={() => {
                 setTab('register')
                 setError(null)
@@ -166,13 +164,12 @@ function LoginPage() {
                   : 'Daftar & Buka Dashboard'}
             </button>
 
-            <div style={{ textAlign: 'center', paddingTop: '8px', borderTop: '1px solid var(--color-hairline)' }}>
+            <div style={{ textAlign: 'center', paddingTop: '10px', borderTop: '1px solid var(--color-hairline)' }}>
               <button
                 type="button"
-                className="example-chip"
+                className="demo-btn"
                 onClick={handleDemoLogin}
                 disabled={loading}
-                style={{ width: '100%', padding: '8px', fontSize: '11px', color: 'var(--color-signal)', borderColor: 'var(--color-signal)' }}
               >
                 Coba Masuk Cepat: Akun Siswa Demo
               </button>
