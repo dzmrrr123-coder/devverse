@@ -3,10 +3,13 @@ import { GitHubError } from '../../github/types'
 import type { GitHubClient } from '../../github/types'
 import type { AnalysisStore } from '../../server/store'
 
-function json(body: unknown, status = 200): Response {
+function json(body: unknown, status = 200, headers: Record<string, string> = {}): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'content-type': 'application/json; charset=utf-8' },
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      ...headers,
+    },
   })
 }
 
@@ -60,7 +63,11 @@ export async function handleAnalyzeRequest(
       { url, ipHash: hashIp(request) },
       { client, store, now },
     )
-    return json({ id: result.id, url: `/r/${result.id}` }, 201)
+    const { createPendingClaimCookie } = await import('../../server/auth')
+    const claimCookie = createPendingClaimCookie(result.id)
+    return json({ id: result.id, url: `/r/${result.id}` }, 201, {
+      'Set-Cookie': claimCookie,
+    })
   } catch (error) {
     if (error instanceof AnalyzeError) {
       return json({ error: error.code, message: error.message }, 400)

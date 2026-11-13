@@ -83,4 +83,41 @@ describe('server auth module', () => {
     const sessionUser = await getServerSession(req)
     expect(sessionUser).toBeNull()
   })
+
+  it('claims an anonymous analysis upon login and prevents claiming it twice', async () => {
+    const user = await getOrCreateUser({
+      githubId: 'gh_claim_test',
+      username: 'claim_user',
+    })
+
+    const { pgliteAnalysisStore } = await import('./store')
+    const { fixtureGitHubClient } = await import('../github/fixture')
+    const { loadSnapshot } = await import('../github/snapshot')
+    const { analyze } = await import('../engine/ladder')
+    const { createPendingClaimCookie, claimPendingAnalysis } = await import('./auth')
+
+    const snap = await loadSnapshot(fixtureGitHubClient('absensi-qr'), 'siswa', 'absensi')
+    const analysis = analyze(snap, { now: new Date() })
+    const store = pgliteAnalysisStore()
+    const analysisId = await store.save(analysis, { ipHash: 'test-hash' })
+
+    const claimCookie = createPendingClaimCookie(analysisId)
+
+    // Request 1: Login with claim cookie
+    const req1 = new Request('http://localhost:3000/api/auth/dev', {
+      headers: { cookie: claimCookie.split(';')[0] },
+    })
+
+    const claimResult = await claimPendingAnalysis(req1, user.id)
+    expect(claimResult.claimedId).toBe(analysisId)
+    expect(claimResult.clearCookie).toContain('Max-Age=0')
+
+    // Request 2: Try to claim again with cleared cookie
+    const req2 = new Request('http://localhost:3000/api/auth/dev', {
+      headers: { cookie: claimResult.clearCookie?.split(';')[0] ?? '' },
+    })
+
+    const secondClaim = await claimPendingAnalysis(req2, user.id)
+    expect(secondClaim.claimedId).toBeNull()
+  })
 })

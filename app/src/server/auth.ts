@@ -203,3 +203,51 @@ export function createSessionCookie(token: string): string {
 export function createClearSessionCookie(): string {
   return 'devverse_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0'
 }
+
+export function createPendingClaimCookie(analysisId: string): string {
+  const maxAge = 2 * 60 * 60 // 2 jam
+  return `devverse_pending_claim=${encodeURIComponent(analysisId)}; Path=/; SameSite=Lax; Max-Age=${maxAge}`
+}
+
+export function createClearPendingClaimCookie(): string {
+  return 'devverse_pending_claim=; Path=/; SameSite=Lax; Max-Age=0'
+}
+
+/**
+ * Mengklaim analisis yang dilakukan secara anonim saat pengguna melakukan login.
+ * Menghubungkan analisis anonim terakhir ke akun baru dan membersihkan cookie klaim.
+ */
+export async function claimPendingAnalysis(
+  request: Request,
+  userId: string,
+): Promise<{ claimedId: string | null; clearCookie: string | null }> {
+  const cookieHeader = request.headers.get('cookie')
+  if (!cookieHeader) return { claimedId: null, clearCookie: null }
+
+  const match = cookieHeader.match(/(?:^|;\s*)devverse_pending_claim=([^;]+)/)
+  if (!match) return { claimedId: null, clearCookie: null }
+
+  const pendingId = decodeURIComponent(match[1]).trim()
+  if (!/^[0-9A-Za-z]{12}$/.test(pendingId)) {
+    return { claimedId: null, clearCookie: createClearPendingClaimCookie() }
+  }
+
+  const db = await getDatabase()
+  const exists = await db.query<{ id: string }>('select id from analysis where id = $1', [pendingId])
+  if (exists.rows.length === 0) {
+    return { claimedId: null, clearCookie: createClearPendingClaimCookie() }
+  }
+
+  const savedId = createAnalysisId()
+  await db.query(
+    `insert into saved_projects (id, user_id, analysis_id)
+     values ($1, $2, $3)
+     on conflict (user_id, analysis_id) do nothing`,
+    [savedId, userId, pendingId],
+  )
+
+  return {
+    claimedId: pendingId,
+    clearCookie: createClearPendingClaimCookie(),
+  }
+}
