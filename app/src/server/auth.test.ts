@@ -84,6 +84,75 @@ describe('server auth module', () => {
     expect(sessionUser).toBeNull()
   })
 
+  it('menandai cookie Secure hanya untuk request HTTPS', async () => {
+    const { isSecureRequest } = await import('./auth')
+
+    expect(createSessionCookie('token', { secure: true })).toContain('Secure')
+    expect(createSessionCookie('token', { secure: false })).not.toContain('Secure')
+
+    const httpsReq = new Request('http://internal:3000/dashboard', {
+      headers: { 'x-forwarded-proto': 'https' },
+    })
+    const httpReq = new Request('http://localhost:3000/dashboard')
+    expect(isSecureRequest(httpsReq)).toBe(true)
+    expect(isSecureRequest(httpReq)).toBe(false)
+  })
+
+  it('memulihkan sesi setelah database hilang (container baru)', async () => {
+    const user = await getOrCreateUser({
+      githubId: 'gh_wipe_1',
+      username: 'wipe_user',
+      displayName: 'Wipe User',
+    })
+
+    const { token } = await createSession(user)
+    const { getDatabase } = await import('./db')
+    const db = await getDatabase()
+
+    // Simulasi deploy Railway: seluruh baris user + sesi hilang.
+    await db.query('delete from users where id = $1', [user.id])
+
+    const req = new Request('http://localhost:3000/dashboard', {
+      headers: { cookie: createSessionCookie(token, { secure: false }).split(';')[0] },
+    })
+
+    const restored = await getServerSession(req)
+    expect(restored).not.toBeNull()
+    expect(restored?.id).toBe(user.id)
+    expect(restored?.username).toBe('wipe_user')
+
+    const sessionRow = await db.query<{ id: string }>(
+      'select id from sessions where user_id = $1',
+      [user.id],
+    )
+    expect(sessionRow.rows.length).toBe(1)
+  })
+
+  it('login GitHub setelah pemulihan memakai id user yang sama', async () => {
+    const user = await getOrCreateUser({
+      githubId: 'gh_wipe_2',
+      username: 'wipe_user2',
+    })
+
+    const { token } = await createSession(user)
+    const { getDatabase } = await import('./db')
+    const db = await getDatabase()
+    await db.query('delete from users where id = $1', [user.id])
+
+    const req = new Request('http://localhost:3000/dashboard', {
+      headers: { cookie: `devverse_session=${encodeURIComponent(token)}` },
+    })
+    await getServerSession(req)
+
+    const relogin = await getOrCreateUser({
+      githubId: 'gh_wipe_2',
+      username: 'wipe_user2',
+      displayName: 'Wipe Two',
+    })
+    expect(relogin.id).toBe(user.id)
+    expect(relogin.githubId).toBe('gh_wipe_2')
+  })
+
   it('claims an anonymous analysis upon login and prevents claiming it twice', async () => {
     const user = await getOrCreateUser({
       githubId: 'gh_claim_test',

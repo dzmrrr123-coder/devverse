@@ -4,6 +4,7 @@ import {
   createSessionCookie,
   getOrCreateUser,
   claimPendingAnalysis,
+  isSecureRequest,
 } from '../../../server/auth'
 
 export const Route = createFileRoute('/api/auth/dev')({
@@ -49,7 +50,7 @@ export const Route = createFileRoute('/api/auth/dev')({
         })
 
         const { token } = await createSession(user)
-        const sessionCookie = createSessionCookie(token)
+        const sessionCookie = createSessionCookie(token, { secure: isSecureRequest(request) })
 
         const { claimedId, clearCookie } = await claimPendingAnalysis(request, user.id)
 

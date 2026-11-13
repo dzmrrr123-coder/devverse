@@ -42,7 +42,17 @@ async function open(): Promise<PGlite> {
     return db
   }
 
-  const dataDir = join(process.cwd(), '.data', 'pglite')
+  // Railway menghapus filesystem container setiap deploy. Kalau volume
+  // terpasang, Railway mengisi RAILWAY_VOLUME_MOUNT_PATH otomatis, jadi
+  // database ikut tersimpan permanen tanpa ubah kode lagi.
+  const configuredDir = process.env.DEVVERSE_DATA_DIR?.trim()
+  const volumeDir = process.env.RAILWAY_VOLUME_MOUNT_PATH?.trim()
+  const dataDir = configuredDir
+    ? configuredDir
+    : volumeDir
+      ? join(volumeDir, 'pglite')
+      : join(process.cwd(), '.data', 'pglite')
+
   await mkdir(dataDir, { recursive: true })
   const db = new PGlite(dataDir)
   await migrate(db)

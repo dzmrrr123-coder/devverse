@@ -4,6 +4,7 @@ import {
   createSessionCookie,
   getOrCreateUser,
   claimPendingAnalysis,
+  isSecureRequest,
 } from '../../../server/auth'
 
 export const Route = createFileRoute('/api/auth/github/callback')({
@@ -108,7 +109,9 @@ export const Route = createFileRoute('/api/auth/github/callback')({
 
           // Buat sesi JWT
           const { token: sessionJwt } = await createSession(user)
-          const sessionCookie = createSessionCookie(sessionJwt)
+          const sessionCookie = createSessionCookie(sessionJwt, {
+            secure: isSecureRequest(request),
+          })
 
           // Klaim otomatis analisis anonim terakhir jika ada
           const { clearCookie } = await claimPendingAnalysis(request, user.id)
