@@ -10,5 +10,6 @@ RUN pnpm install --frozen-lockfile
 COPY app/ .
 RUN pnpm build
 
+ENV PORT=3000
 EXPOSE 3000
-CMD ["pnpm", "preview", "--port", "3000", "--host", "0.0.0.0"]
+CMD ["sh", "-c", "pnpm preview --port ${PORT:-3000} --host 0.0.0.0"]
