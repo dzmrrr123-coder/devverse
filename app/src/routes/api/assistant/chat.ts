@@ -39,6 +39,31 @@ export async function handleAssistantChatRequest(
     action?: QuickAction
     prompt?: string
     analysisId?: string
+    apiKey?: string
+  }
+
+  // Header takes precedence, then body, then server env
+  const headerKey = request.headers.get('x-gemini-api-key')
+  const clientKey = headerKey || payload.apiKey
+
+  let apiKeyOverride = options?.apiKeyOverride
+
+  if (clientKey) {
+    const { isValidGeminiKey } = await import('../../../server/assistant')
+    const trimmed = clientKey.trim()
+    if (trimmed && trimmed !== 'none') {
+      if (!isValidGeminiKey(trimmed)) {
+        return json(
+          {
+            error: 'invalid_key',
+            message:
+              'Format Google Gemini API Key tidak valid. Kunci dari Google AI Studio biasanya berawalan "AIzaSy...".',
+          },
+          400,
+        )
+      }
+      apiKeyOverride = trimmed
+    }
   }
 
   let analysis = null
@@ -54,10 +79,10 @@ export async function handleAssistantChatRequest(
       analysis,
       action: payload.action,
       userPrompt: payload.prompt ?? '',
-      apiKeyOverride: options?.apiKeyOverride,
+      apiKeyOverride,
     })
 
-    return json({ ok: true, reply: res.reply }, 200)
+    return json({ ok: true, reply: res.reply, isLiveAi: res.isLiveAi }, 200)
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Gagal menghubungi asisten AI.'
     return json({ error: 'assistant_error', message }, 500)

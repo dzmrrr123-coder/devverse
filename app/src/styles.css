@@ -2155,4 +2155,62 @@
     display: flex;
     justify-content: flex-end;
   }
+
+  /* ============================================================
+     MODAL / POPOVER
+     ============================================================ */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(7, 11, 13, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-card {
+    background: linear-gradient(180deg, rgba(23, 34, 39, 0.95) 0%, rgba(16, 23, 27, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 32px 64px -16px rgba(0, 0, 0, 0.9);
+    border-radius: 2px;
+    max-width: 480px;
+    width: 100%;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .modal-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-paper);
+    margin: 4px 0 0;
+  }
+
+  .modal-desc {
+    font-family: var(--font-display);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--color-muted);
+    margin: 0;
+  }
+
+  .modal-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-top: 8px;
+  }
 }

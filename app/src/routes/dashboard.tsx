@@ -50,6 +50,20 @@ function DashboardPage() {
   const [timeline, setTimeline] = useState<TimelineMilestone[]>([])
   const [loadingTimeline, setLoadingTimeline] = useState(false)
 
+  const [apiKey, setApiKey] = useState('')
+  const [showKeyModal, setShowKeyModal] = useState(false)
+  const [tempKey, setTempKey] = useState('')
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('devverse_gemini_key')
+      if (stored) {
+        setApiKey(stored)
+        setTempKey(stored)
+      }
+    } catch {}
+  }, [])
+
   useEffect(() => {
     if (!selectedProject) {
       setTimeline([])
@@ -159,10 +173,15 @@ function DashboardPage() {
     setChatLoading(true)
 
     try {
+      const headers: Record<string, string> = { 'content-type': 'application/json' }
+      if (apiKey.trim()) {
+        headers['x-gemini-api-key'] = apiKey.trim()
+      }
+
       const res = await fetch('/api/assistant/chat', {
         method: 'POST',
         credentials: 'include',
-        headers: { 'content-type': 'application/json' },
+        headers,
         body: JSON.stringify({
           action: action ?? 'general_chat',
           prompt: promptToSend,
@@ -357,7 +376,32 @@ function DashboardPage() {
                 <span className="context-pill">Konteks: Umum</span>
               )}
             </div>
-            <span className="micro-label signal">ONLINE</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button
+                type="button"
+                className="control"
+                style={{ padding: '4px 10px', fontSize: '10px' }}
+                onClick={() => {
+                  setTempKey(apiKey)
+                  setShowKeyModal(true)
+                }}
+              >
+                {apiKey ? '🔑 Key Aktif' : '⚙️ Pasang Gemini Key'}
+              </button>
+              <span
+                className="state-square"
+                style={{
+                  backgroundColor: apiKey ? 'var(--color-pass)' : 'var(--color-signal)',
+                  boxShadow: apiKey
+                    ? '0 0 10px rgba(99, 217, 198, 0.6)'
+                    : '0 0 10px rgba(242, 178, 103, 0.5)',
+                }}
+                aria-hidden="true"
+              />
+              <span className={`micro-label ${apiKey ? 'pass' : 'signal'}`}>
+                {apiKey ? 'LIVE AI' : 'FALLBACK'}
+              </span>
+            </div>
           </div>
 
           {/* Tombol Aksi Cepat (Termasuk yang diminta human) */}
@@ -457,6 +501,96 @@ function DashboardPage() {
           </form>
         </section>
       </main>
+
+      {/* Modal Pengaturan Kunci Google Gemini */}
+      {showKeyModal ? (
+        <div className="modal-backdrop" onClick={() => setShowKeyModal(false)}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div>
+                <p className="micro-label quiet">PENGATURAN KUNCI GOOGLE GEMINI</p>
+                <h3 className="modal-title">Hubungkan AI Langsung.</h3>
+              </div>
+              <button
+                type="button"
+                className="control"
+                style={{ padding: '4px 8px' }}
+                onClick={() => setShowKeyModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="modal-desc">
+              Kunci ini disimpan hanya di perambanmu (localStorage), tidak pernah disimpan permanen di server kami,
+              dan hanya dikirim ke Google Gemini melalui koneksi terenkripsi.
+            </p>
+
+            <div className="login-field">
+              <label htmlFor="gemini-key-input" className="micro-label quiet">
+                GOOGLE AI STUDIO API KEY
+              </label>
+              <input
+                id="gemini-key-input"
+                type="password"
+                className="url-input login-input"
+                placeholder="AIzaSy..."
+                value={tempKey}
+                onChange={(e) => setTempKey(e.target.value)}
+                autoComplete="off"
+                spellCheck={false}
+              />
+              <a
+                href="https://aistudio.google.com/apikey"
+                target="_blank"
+                rel="noreferrer"
+                className="font-label text-xs"
+                style={{ color: 'var(--color-signal)', marginTop: '4px', textDecoration: 'none' }}
+              >
+                Dapatkan API Key gratis di Google AI Studio &rarr;
+              </a>
+            </div>
+
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="control submit-control"
+                onClick={() => {
+                  const trimmed = tempKey.trim()
+                  setApiKey(trimmed)
+                  try {
+                    if (trimmed) {
+                      localStorage.setItem('devverse_gemini_key', trimmed)
+                    } else {
+                      localStorage.removeItem('devverse_gemini_key')
+                    }
+                  } catch {}
+                  setShowKeyModal(false)
+                }}
+              >
+                Simpan Kunci
+              </button>
+              {apiKey ? (
+                <button
+                  type="button"
+                  className="control"
+                  style={{ color: 'var(--color-fail)' }}
+                  onClick={() => {
+                    setApiKey('')
+                    setTempKey('')
+                    try {
+                      localStorage.removeItem('devverse_gemini_key')
+                    } catch {}
+                    setShowKeyModal(false)
+                  }}
+                >
+                  Hapus Kunci
+                </button>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

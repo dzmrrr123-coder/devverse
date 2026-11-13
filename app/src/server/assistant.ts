@@ -8,6 +8,15 @@ import type { QuickAction } from '../engine/assistant-types'
 export { QUICK_ACTIONS }
 export type { QuickAction }
 
+/**
+ * Validasi format Google Gemini API Key dari Google AI Studio.
+ * Standar Google: berawalan 'AIzaSy' diikuti 33 karakter alphanumeric/dash.
+ */
+export function isValidGeminiKey(key: string): boolean {
+  if (!key) return false
+  return /^AIzaSy[0-9A-Za-z_-]{33}$/.test(key.trim())
+}
+
 function buildSystemContext(analysis?: Analysis | null): string {
   if (!analysis) {
     return `Kamu adalah Asisten AI Devverse — mentor coding ramah, santai, dan praktis untuk siswa SMK jurusan RPL dan fresh graduate Indonesia. Bantu mereka memahami konsep rekayasa software dengan contoh kode konkret dan penjelasan sederhana.`
@@ -54,49 +63,66 @@ INSTRUKSI MENJAWAB:
    - Berikan tips portofolio agar proyek ini menonjol saat melamar kerja.`
 }
 
+/**
+ * Memanggil REST API Google Gemini dengan sanitasi ketat agar API key tidak pernah bocor.
+ * Mendukung fallback cerdas antara model gemini-2.0-flash dan gemini-1.5-flash.
+ */
 export async function callGeminiApi(
   apiKey: string,
   systemInstruction: string,
   userMessage: string,
 ): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`
+  const models = ['gemini-2.0-flash', 'gemini-1.5-flash']
+  let lastError: Error | null = null
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({
-      systemInstruction: {
-        parts: [{ text: systemInstruction }],
-      },
-      contents: [
-        {
-          role: 'user',
-          parts: [{ text: userMessage }],
-        },
-      ],
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 2048,
-      },
-    }),
-  })
+  for (const model of models) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`
 
-  if (!response.ok) {
-    const errText = await response.text()
-    throw new Error(`Gemini API error (${response.status}): ${errText}`)
-  }
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: systemInstruction }],
+          },
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: userMessage }],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 2048,
+          },
+        }),
+      })
 
-  const data = (await response.json()) as {
-    candidates?: Array<{
-      content?: {
-        parts?: Array<{ text?: string }>
+      if (!response.ok) {
+        const errText = await response.text()
+        const sanitizedErr = errText.replace(/key=[^&\s"]+/gi, 'key=[REDACTED]')
+        throw new Error(`Gemini API error (${response.status}): ${sanitizedErr}`)
       }
-    }>
+
+      const data = (await response.json()) as {
+        candidates?: Array<{
+          content?: {
+            parts?: Array<{ text?: string }>
+          }
+        }>
+      }
+
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text
+      if (text) return text
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err))
+      if (lastError.message.includes('404')) continue
+      throw lastError
+    }
   }
 
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text
-  if (!text) throw new Error('Gemini API mengembalikan respons kosong.')
-  return text
+  throw lastError ?? new Error('Gemini API mengembalikan respons kosong.')
 }
 
 export async function askAssistant(params: {
@@ -106,7 +132,7 @@ export async function askAssistant(params: {
   action?: QuickAction
   userPrompt: string
   apiKeyOverride?: string
-}): Promise<{ reply: string }> {
+}): Promise<{ reply: string; isLiveAi: boolean }> {
   const prompt =
     params.action && params.action !== 'general_chat'
       ? QUICK_ACTIONS[params.action].prompt
@@ -117,15 +143,18 @@ export async function askAssistant(params: {
   }
 
   const systemContext = buildSystemContext(params.analysis)
-  const apiKey = params.apiKeyOverride || process.env.GEMINI_API_KEY
+  const candidateKey = params.apiKeyOverride || process.env.GEMINI_API_KEY
+  const apiKey = candidateKey && isValidGeminiKey(candidateKey) ? candidateKey : null
 
   let reply = ''
+  let isLiveAi = false
 
-  if (apiKey && apiKey !== 'none') {
+  if (apiKey) {
     try {
       reply = await callGeminiApi(apiKey, systemContext, prompt)
+      isLiveAi = true
     } catch (err) {
-      console.warn('Gagal memanggil Gemini API, beralih ke fallback cerdas:', err)
+      console.warn('Panggilan Gemini API gagal, menggunakan fallback cerdas:', err instanceof Error ? err.message : err)
       reply = generateFallbackReply(params.analysis, params.action, prompt)
     }
   } else {
@@ -146,7 +175,7 @@ export async function askAssistant(params: {
     [msgAssistant, params.userId, params.analysisId ?? null, 'assistant', reply],
   )
 
-  return { reply }
+  return { reply, isLiveAi }
 }
 
 function generateFallbackReply(
