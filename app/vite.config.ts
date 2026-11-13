@@ -8,6 +8,9 @@ import tailwindcss from '@tailwindcss/vite'
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
+  define: {
+    'process.env': {},
+  },
   preview: {
     allowedHosts: true,
   },
