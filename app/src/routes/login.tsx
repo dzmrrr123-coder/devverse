@@ -58,9 +58,13 @@ function LoginPage() {
     }
   }
 
-  function handleFormSubmit(e: React.FormEvent) {
+  function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    submitAuth(username, tab === 'register' ? displayName : undefined)
+    const form = e.currentTarget
+    const formData = new FormData(form)
+    const uname = ((formData.get('username') as string) || username).trim()
+    const dname = ((formData.get('displayName') as string) || displayName).trim()
+    submitAuth(uname, tab === 'register' ? dname : undefined)
   }
 
   function handleDemoLogin() {
@@ -123,6 +127,7 @@ function LoginPage() {
                 </label>
                 <input
                   id="display-name-input"
+                  name="displayName"
                   type="text"
                   className="url-input login-input"
                   value={displayName}
@@ -139,6 +144,7 @@ function LoginPage() {
               </label>
               <input
                 id="username-input"
+                name="username"
                 type="text"
                 className="url-input login-input"
                 value={username}
