@@ -18,6 +18,7 @@ import { Route as RIdRouteImport } from './routes/r.$id'
 import { Route as ApiAssistantChatRouteImport } from './routes/api/assistant/chat'
 import { Route as ApiAuthDevRouteImport } from './routes/api/auth/dev'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
+import { Route as ApiProjectsTimelineRouteImport } from './routes/api/projects/timeline'
 import { Route as ApiBadgeOwnerRepoRouteImport } from './routes/api/badge.$owner.$repo'
 
 const IndexRoute = IndexRouteImport.update({
@@ -65,6 +66,11 @@ const ApiAuthLogoutRoute = ApiAuthLogoutRouteImport.update({
   path: '/api/auth/logout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiProjectsTimelineRoute = ApiProjectsTimelineRouteImport.update({
+  id: '/api/projects/timeline',
+  path: '/api/projects/timeline',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiBadgeOwnerRepoRoute = ApiBadgeOwnerRepoRouteImport.update({
   id: '/api/badge/$owner/$repo',
   path: '/api/badge/$owner/$repo',
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/api/assistant/chat': typeof ApiAssistantChatRoute
   '/api/auth/dev': typeof ApiAuthDevRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/projects/timeline': typeof ApiProjectsTimelineRoute
   '/api/badge/$owner/$repo': typeof ApiBadgeOwnerRepoRoute
 }
 export interface FileRoutesByTo {
@@ -93,6 +100,7 @@ export interface FileRoutesByTo {
   '/api/assistant/chat': typeof ApiAssistantChatRoute
   '/api/auth/dev': typeof ApiAuthDevRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/projects/timeline': typeof ApiProjectsTimelineRoute
   '/api/badge/$owner/$repo': typeof ApiBadgeOwnerRepoRoute
 }
 export interface FileRoutesById {
@@ -106,6 +114,7 @@ export interface FileRoutesById {
   '/api/assistant/chat': typeof ApiAssistantChatRoute
   '/api/auth/dev': typeof ApiAuthDevRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/projects/timeline': typeof ApiProjectsTimelineRoute
   '/api/badge/$owner/$repo': typeof ApiBadgeOwnerRepoRoute
 }
 export interface FileRouteTypes {
@@ -120,6 +129,7 @@ export interface FileRouteTypes {
     | '/api/assistant/chat'
     | '/api/auth/dev'
     | '/api/auth/logout'
+    | '/api/projects/timeline'
     | '/api/badge/$owner/$repo'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -132,6 +142,7 @@ export interface FileRouteTypes {
     | '/api/assistant/chat'
     | '/api/auth/dev'
     | '/api/auth/logout'
+    | '/api/projects/timeline'
     | '/api/badge/$owner/$repo'
   id:
     | '__root__'
@@ -144,6 +155,7 @@ export interface FileRouteTypes {
     | '/api/assistant/chat'
     | '/api/auth/dev'
     | '/api/auth/logout'
+    | '/api/projects/timeline'
     | '/api/badge/$owner/$repo'
   fileRoutesById: FileRoutesById
 }
@@ -157,6 +169,7 @@ export interface RootRouteChildren {
   ApiAssistantChatRoute: typeof ApiAssistantChatRoute
   ApiAuthDevRoute: typeof ApiAuthDevRoute
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
+  ApiProjectsTimelineRoute: typeof ApiProjectsTimelineRoute
   ApiBadgeOwnerRepoRoute: typeof ApiBadgeOwnerRepoRoute
 }
 
@@ -225,6 +238,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthLogoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/projects/timeline': {
+      id: '/api/projects/timeline'
+      path: '/api/projects/timeline'
+      fullPath: '/api/projects/timeline'
+      preLoaderRoute: typeof ApiProjectsTimelineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/badge/$owner/$repo': {
       id: '/api/badge/$owner/$repo'
       path: '/api/badge/$owner/$repo'
@@ -245,6 +265,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAssistantChatRoute: ApiAssistantChatRoute,
   ApiAuthDevRoute: ApiAuthDevRoute,
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
+  ApiProjectsTimelineRoute: ApiProjectsTimelineRoute,
   ApiBadgeOwnerRepoRoute: ApiBadgeOwnerRepoRoute,
 }
 export const routeTree = rootRouteImport

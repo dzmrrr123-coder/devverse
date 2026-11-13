@@ -1,9 +1,11 @@
-import { createFileRoute, redirect, useNavigate, Link } from '@tanstack/react-router'
+import { createFileRoute, redirect, Link } from '@tanstack/react-router'
 import { useState, useRef, useEffect } from 'react'
 import { getDashboardData } from '../server/dashboard'
 import type { DashboardData, SavedProjectItem } from '../server/dashboard'
 import { QUICK_ACTIONS } from '../engine/assistant-types'
 import type { QuickAction } from '../engine/assistant-types'
+import { TimelineView } from '../components/timeline-view'
+import type { TimelineMilestone } from '../engine/timeline'
 
 export const Route = createFileRoute('/dashboard')({
   beforeLoad: async () => {
@@ -38,12 +40,36 @@ type ChatMessage = {
 
 function DashboardPage() {
   const data = Route.useLoaderData() as DashboardData
-  const navigate = useNavigate()
 
   const [projects, setProjects] = useState<SavedProjectItem[]>(data.projects)
   const [selectedProject, setSelectedProject] = useState<SavedProjectItem | null>(
     data.projects[0] ?? null,
   )
+
+  const [colView, setColView] = useState<'projects' | 'timeline'>('projects')
+  const [timeline, setTimeline] = useState<TimelineMilestone[]>([])
+  const [loadingTimeline, setLoadingTimeline] = useState(false)
+
+  useEffect(() => {
+    if (!selectedProject) {
+      setTimeline([])
+      return
+    }
+    const parts = selectedProject.repoFullName.split('/')
+    if (parts.length < 2) return
+    const [owner, repo] = parts
+
+    setLoadingTimeline(true)
+    fetch(`/api/projects/timeline?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repo)}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.ok && Array.isArray(d.timeline)) {
+          setTimeline(d.timeline)
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoadingTimeline(false))
+  }, [selectedProject])
 
   const [messages, setMessages] = useState<ChatMessage[]>(
     data.recentChats.map((c) => ({
@@ -210,80 +236,112 @@ function DashboardPage() {
         {/* Kolom Kiri: Portofolio Proyek */}
         <section className="dashboard-col projects-col" aria-labelledby="projects-heading">
           <div className="col-header">
-            <h2 id="projects-heading" className="micro-label quiet">
-              WORKSPACE REPOSITORY
-            </h2>
-            <span className="project-count-badge">{projects.length} PROYEK</span>
-          </div>
-
-          {/* Form Tambah Repo */}
-          <form onSubmit={handleAnalyzeAndSave} className="add-project-form">
-            <div className="url-input-wrap">
-              <input
-                type="text"
-                className="url-input"
-                placeholder="https://github.com/user/nama-repo"
-                value={inputUrl}
-                onChange={(e) => setInputUrl(e.target.value)}
-                disabled={analyzing}
-              />
-              <button type="submit" className="control submit-control" disabled={analyzing}>
-                {analyzing ? 'Menilai...' : 'Tambah'}
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                type="button"
+                className={`control ${colView === 'projects' ? 'submit-control' : ''}`}
+                style={{ padding: '4px 10px', fontSize: '10px' }}
+                onClick={() => setColView('projects')}
+              >
+                PROYEK ({projects.length})
+              </button>
+              <button
+                type="button"
+                className={`control ${colView === 'timeline' ? 'submit-control' : ''}`}
+                style={{ padding: '4px 10px', fontSize: '10px' }}
+                onClick={() => setColView('timeline')}
+                disabled={!selectedProject}
+              >
+                TIMELINE {timeline.length > 0 ? `(${timeline.length})` : ''}
               </button>
             </div>
-            {analyzeError ? (
-              <p className="error-banner" style={{ margin: 0 }}>
-                {analyzeError}
-              </p>
-            ) : null}
-          </form>
-
-          {/* Daftar Proyek */}
-          <div className="projects-list" role="list">
-            {projects.length === 0 ? (
-              <div className="empty-projects">
-                <p className="micro-label quiet">BELUM ADA REPO</p>
-                <p>Tempel tautan GitHub-mu di atas untuk memantau level kesiapan portofoliomu.</p>
-              </div>
-            ) : (
-              projects.map((proj) => {
-                const isSelected = selectedProject?.id === proj.id
-                return (
-                  <article
-                    key={proj.id}
-                    className={`project-card ${isSelected ? 'is-selected' : ''}`}
-                    onClick={() => setSelectedProject(proj)}
-                  >
-                    <div className="project-card-top">
-                      <span className="project-name">{proj.repoFullName}</span>
-                      <span
-                        className={`state-square ${
-                          proj.reachedLevel && proj.reachedLevel >= 1 ? 'is-lulus' : 'is-gagal'
-                        }`}
-                        aria-hidden="true"
-                      />
-                    </div>
-
-                    <div className="project-card-meta">
-                      <span className="project-level">
-                        {proj.reachedLevel ? `Level ${proj.reachedLevel} Lulus` : 'Level 1 Belum'}
-                      </span>
-                      <div className="project-actions">
-                        <Link
-                          to="/r/$id"
-                          params={{ id: proj.analysisId }}
-                          className="control text-xs"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          Laporan Lengkap &rarr;
-                        </Link>
-                      </div>
-                    </div>
-                  </article>
-                )
-              })
-            )}
+            <span className="project-count-badge">
+              {colView === 'projects' ? 'WORKSPACE' : selectedProject ? selectedProject.repoFullName : 'PILIH REPO'}
+            </span>
           </div>
+
+          {colView === 'projects' ? (
+            <>
+              {/* Form Tambah Repo */}
+              <form onSubmit={handleAnalyzeAndSave} className="add-project-form">
+                <div className="url-input-wrap">
+                  <input
+                    type="text"
+                    className="url-input"
+                    placeholder="https://github.com/user/nama-repo"
+                    value={inputUrl}
+                    onChange={(e) => setInputUrl(e.target.value)}
+                    disabled={analyzing}
+                  />
+                  <button type="submit" className="control submit-control" disabled={analyzing}>
+                    {analyzing ? 'Menilai...' : 'Tambah'}
+                  </button>
+                </div>
+                {analyzeError ? (
+                  <p className="error-banner" style={{ margin: 0 }}>
+                    {analyzeError}
+                  </p>
+                ) : null}
+              </form>
+
+              {/* Daftar Proyek */}
+              <div className="projects-list" role="list">
+                {projects.length === 0 ? (
+                  <div className="empty-projects">
+                    <p className="micro-label quiet">BELUM ADA REPO</p>
+                    <p>Tempel tautan GitHub-mu di atas untuk memantau level kesiapan portofoliomu.</p>
+                  </div>
+                ) : (
+                  projects.map((proj) => {
+                    const isSelected = selectedProject?.id === proj.id
+                    return (
+                      <article
+                        key={proj.id}
+                        className={`project-card ${isSelected ? 'is-selected' : ''}`}
+                        onClick={() => setSelectedProject(proj)}
+                      >
+                        <div className="project-card-top">
+                          <span className="project-name">{proj.repoFullName}</span>
+                          <span
+                            className={`state-square ${
+                              proj.reachedLevel && proj.reachedLevel >= 1 ? 'is-lulus' : 'is-gagal'
+                            }`}
+                            aria-hidden="true"
+                          />
+                        </div>
+
+                        <div className="project-card-meta">
+                          <span className="project-level">
+                            {proj.reachedLevel ? `Level ${proj.reachedLevel} Lulus` : 'Level 1 Belum'}
+                          </span>
+                          <div className="project-actions">
+                            <Link
+                              to="/r/$id"
+                              params={{ id: proj.analysisId }}
+                              className="control text-xs"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              Laporan Lengkap &rarr;
+                            </Link>
+                          </div>
+                        </div>
+                      </article>
+                    )
+                  })
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="timeline-col-content">
+              {loadingTimeline ? (
+                <p className="font-label text-xs quiet" style={{ padding: '16px 0' }}>
+                  Memuat riwayat commit...
+                </p>
+              ) : (
+                <TimelineView milestones={timeline} />
+              )}
+            </div>
+          )}
         </section>
 
         {/* Kolom Kanan: Studio Asisten AI */}
