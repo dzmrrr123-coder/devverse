@@ -10,6 +10,20 @@ export const Route = createFileRoute('/api/auth/dev')({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        // Larang dev login di environment production agar tidak ada yang bisa masuk sembarangan
+        if (process.env.NODE_ENV === 'production' && !process.env.ALLOW_DEV_LOGIN) {
+          return new Response(
+            JSON.stringify({
+              error: 'forbidden',
+              message: 'Login acak dimatikan. Wajib menggunakan otorisasi GitHub OAuth resmi.',
+            }),
+            {
+              status: 403,
+              headers: { 'content-type': 'application/json; charset=utf-8' },
+            },
+          )
+        }
+
         let body: unknown
         try {
           body = await request.json()
