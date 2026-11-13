@@ -157,54 +157,47 @@ export async function getOrCreateUser(profile: {
   avatarUrl?: string | null
 }): Promise<User> {
   const db = await getDatabase()
-  const existing = await db.query<{
+  const normalizedGithubId = profile.githubId.trim().toLowerCase()
+  const userId = createAnalysisId()
+
+  const res = await db.query<{
     id: string
     github_id: string
     username: string
     display_name: string | null
     avatar_url: string | null
     created_at: string
-  }>('select * from users where github_id = $1', [profile.githubId])
-
-  if (existing.rows.length > 0) {
-    const row = existing.rows[0]
-    await db.query(
-      'update users set username = $1, display_name = $2, avatar_url = $3 where id = $4',
-      [profile.username, profile.displayName ?? null, profile.avatarUrl ?? null, row.id],
-    )
-    return {
-      id: row.id,
-      githubId: row.github_id,
-      username: profile.username,
-      displayName: profile.displayName ?? null,
-      avatarUrl: profile.avatarUrl ?? null,
-      createdAt: row.created_at,
-    }
-  }
-
-  const userId = createAnalysisId()
-  await db.query(
+  }>(
     `insert into users (id, github_id, username, display_name, avatar_url)
-     values ($1, $2, $3, $4, $5)`,
-    [userId, profile.githubId, profile.username, profile.displayName ?? null, profile.avatarUrl ?? null],
+     values ($1, $2, $3, $4, $5)
+     on conflict (github_id) do update set
+       username = excluded.username,
+       display_name = coalesce(excluded.display_name, users.display_name),
+       avatar_url = coalesce(excluded.avatar_url, users.avatar_url)
+     returning id, github_id, username, display_name, avatar_url, created_at`,
+    [
+      userId,
+      normalizedGithubId,
+      profile.username,
+      profile.displayName ?? null,
+      profile.avatarUrl ?? null,
+    ],
   )
 
+  const row = res.rows[0]
   return {
-    id: userId,
-    githubId: profile.githubId,
-    username: profile.username,
-    displayName: profile.displayName ?? null,
-    avatarUrl: profile.avatarUrl ?? null,
-    createdAt: new Date().toISOString(),
+    id: row.id,
+    githubId: row.github_id,
+    username: row.username,
+    displayName: row.display_name,
+    avatarUrl: row.avatar_url,
+    createdAt: String(row.created_at),
   }
 }
 
 export function createSessionCookie(token: string): string {
-  const isProd = process.env.NODE_ENV === 'production'
   const maxAge = 30 * 24 * 60 * 60 // 30 hari
-  return `devverse_session=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${
-    isProd ? '; Secure' : ''
-  }`
+  return `devverse_session=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}`
 }
 
 export function createClearSessionCookie(): string {

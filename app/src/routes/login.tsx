@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 
 export const Route = createFileRoute('/login')({
@@ -15,7 +15,6 @@ export const Route = createFileRoute('/login')({
 })
 
 function LoginPage() {
-  const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [username, setUsername] = useState('siswa_smk')
   const [error, setError] = useState<string | null>(null)
@@ -42,7 +41,7 @@ function LoginPage() {
         return
       }
 
-      await navigate({ to: '/dashboard' })
+      window.location.href = '/dashboard'
     } catch {
       setError('Koneksi terputus. Silakan coba lagi.')
       setLoading(false)

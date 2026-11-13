@@ -18,6 +18,7 @@ import { Route as RIdRouteImport } from './routes/r.$id'
 import { Route as ApiAssistantChatRouteImport } from './routes/api/assistant/chat'
 import { Route as ApiAuthDevRouteImport } from './routes/api/auth/dev'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
+import { Route as ApiBadgeOwnerRepoRouteImport } from './routes/api/badge.$owner.$repo'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -64,6 +65,11 @@ const ApiAuthLogoutRoute = ApiAuthLogoutRouteImport.update({
   path: '/api/auth/logout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBadgeOwnerRepoRoute = ApiBadgeOwnerRepoRouteImport.update({
+  id: '/api/badge/$owner/$repo',
+  path: '/api/badge/$owner/$repo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/api/assistant/chat': typeof ApiAssistantChatRoute
   '/api/auth/dev': typeof ApiAuthDevRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/badge/$owner/$repo': typeof ApiBadgeOwnerRepoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByTo {
   '/api/assistant/chat': typeof ApiAssistantChatRoute
   '/api/auth/dev': typeof ApiAuthDevRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/badge/$owner/$repo': typeof ApiBadgeOwnerRepoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/api/assistant/chat': typeof ApiAssistantChatRoute
   '/api/auth/dev': typeof ApiAuthDevRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/badge/$owner/$repo': typeof ApiBadgeOwnerRepoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/api/assistant/chat'
     | '/api/auth/dev'
     | '/api/auth/logout'
+    | '/api/badge/$owner/$repo'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | '/api/assistant/chat'
     | '/api/auth/dev'
     | '/api/auth/logout'
+    | '/api/badge/$owner/$repo'
   id:
     | '__root__'
     | '/'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/api/assistant/chat'
     | '/api/auth/dev'
     | '/api/auth/logout'
+    | '/api/badge/$owner/$repo'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,6 +157,7 @@ export interface RootRouteChildren {
   ApiAssistantChatRoute: typeof ApiAssistantChatRoute
   ApiAuthDevRoute: typeof ApiAuthDevRoute
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
+  ApiBadgeOwnerRepoRoute: typeof ApiBadgeOwnerRepoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthLogoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/badge/$owner/$repo': {
+      id: '/api/badge/$owner/$repo'
+      path: '/api/badge/$owner/$repo'
+      fullPath: '/api/badge/$owner/$repo'
+      preLoaderRoute: typeof ApiBadgeOwnerRepoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -225,6 +245,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAssistantChatRoute: ApiAssistantChatRoute,
   ApiAuthDevRoute: ApiAuthDevRoute,
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
+  ApiBadgeOwnerRepoRoute: ApiBadgeOwnerRepoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

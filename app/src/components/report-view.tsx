@@ -119,6 +119,46 @@ function ShareControl({ path }: { path: string }) {
   )
 }
 
+function BadgeControl({ analysis, path }: { analysis: Analysis; path: string }) {
+  const [state, setState] = useState<'idle' | 'copied' | 'failed'>('idle')
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+
+  useEffect(() => () => clearTimeout(timer.current), [])
+
+  async function copyBadge() {
+    const origin = window.location.origin
+    const badgeUrl = `${origin}/api/badge/${analysis.repo.owner}/${analysis.repo.name}`
+    const reportUrl = `${origin}${path}`
+    const markdown = `[![Devverse Level](${badgeUrl})](${reportUrl})`
+
+    try {
+      await navigator.clipboard.writeText(markdown)
+      setState('copied')
+    } catch {
+      setState('failed')
+    }
+
+    clearTimeout(timer.current)
+    timer.current = setTimeout(() => setState('idle'), 1400)
+  }
+
+  return (
+    <button
+      className="control badge-control"
+      type="button"
+      onClick={copyBadge}
+      aria-label="Salin badge markdown untuk README"
+    >
+      <span aria-hidden="true">
+        {state === 'copied' ? 'Badge Tersalin!' : state === 'failed' ? 'Gagal' : 'Salin Badge'}
+      </span>
+      <span className="visually-hidden" role="status">
+        {state === 'copied' ? 'Markdown badge tersalin.' : ''}
+      </span>
+    </button>
+  )
+}
+
 function Rail({ analysis }: { analysis: Analysis }) {
   return (
     <aside className="rail">
@@ -460,6 +500,7 @@ export function ReportView({ analysis, analysisId }: { analysis: Analysis; analy
                 <span className="desktop-only">{full}</span>
                 <span className="phone-only">{short}</span>
               </p>
+              <BadgeControl analysis={analysis} path={path} />
               <ShareControl path={path} />
             </div>
           </header>
