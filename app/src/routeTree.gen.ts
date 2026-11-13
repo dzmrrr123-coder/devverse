@@ -14,6 +14,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as HowRouteImport } from './routes/how'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ApiAnalyzeRouteImport } from './routes/api/analyze'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as RIdRouteImport } from './routes/r.$id'
 import { Route as ApiAssistantChatRouteImport } from './routes/api/assistant/chat'
 import { Route as ApiAuthDevRouteImport } from './routes/api/auth/dev'
@@ -47,6 +48,11 @@ const LoginRoute = LoginRouteImport.update({
 const ApiAnalyzeRoute = ApiAnalyzeRouteImport.update({
   id: '/api/analyze',
   path: '/api/analyze',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RIdRoute = RIdRouteImport.update({
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/how': typeof HowRoute
   '/login': typeof LoginRoute
   '/api/analyze': typeof ApiAnalyzeRoute
+  '/api/health': typeof ApiHealthRoute
   '/r/$id': typeof RIdRoute
   '/api/assistant/chat': typeof ApiAssistantChatRoute
   '/api/auth/dev': typeof ApiAuthDevRoute
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/how': typeof HowRoute
   '/login': typeof LoginRoute
   '/api/analyze': typeof ApiAnalyzeRoute
+  '/api/health': typeof ApiHealthRoute
   '/r/$id': typeof RIdRoute
   '/api/assistant/chat': typeof ApiAssistantChatRoute
   '/api/auth/dev': typeof ApiAuthDevRoute
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/how': typeof HowRoute
   '/login': typeof LoginRoute
   '/api/analyze': typeof ApiAnalyzeRoute
+  '/api/health': typeof ApiHealthRoute
   '/r/$id': typeof RIdRoute
   '/api/assistant/chat': typeof ApiAssistantChatRoute
   '/api/auth/dev': typeof ApiAuthDevRoute
@@ -152,6 +161,7 @@ export interface FileRouteTypes {
     | '/how'
     | '/login'
     | '/api/analyze'
+    | '/api/health'
     | '/r/$id'
     | '/api/assistant/chat'
     | '/api/auth/dev'
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
     | '/how'
     | '/login'
     | '/api/analyze'
+    | '/api/health'
     | '/r/$id'
     | '/api/assistant/chat'
     | '/api/auth/dev'
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '/how'
     | '/login'
     | '/api/analyze'
+    | '/api/health'
     | '/r/$id'
     | '/api/assistant/chat'
     | '/api/auth/dev'
@@ -201,6 +213,7 @@ export interface RootRouteChildren {
   HowRoute: typeof HowRoute
   LoginRoute: typeof LoginRoute
   ApiAnalyzeRoute: typeof ApiAnalyzeRoute
+  ApiHealthRoute: typeof ApiHealthRoute
   RIdRoute: typeof RIdRoute
   ApiAssistantChatRoute: typeof ApiAssistantChatRoute
   ApiAuthDevRoute: typeof ApiAuthDevRoute
@@ -246,6 +259,13 @@ declare module '@tanstack/react-router' {
       path: '/api/analyze'
       fullPath: '/api/analyze'
       preLoaderRoute: typeof ApiAnalyzeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/r/$id': {
@@ -332,6 +352,7 @@ const rootRouteChildren: RootRouteChildren = {
   HowRoute: HowRoute,
   LoginRoute: LoginRoute,
   ApiAnalyzeRoute: ApiAnalyzeRoute,
+  ApiHealthRoute: ApiHealthRoute,
   RIdRoute: RIdRoute,
   ApiAssistantChatRoute: ApiAssistantChatRoute,
   ApiAuthDevRoute: ApiAuthDevRoute,
