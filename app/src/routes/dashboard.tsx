@@ -602,7 +602,7 @@ function DashboardPage() {
                 id="gemini-key-input"
                 type="password"
                 className="url-input login-input"
-                placeholder="AIzaSy..."
+                placeholder="Tempel API key Google Gemini kamu di sini..."
                 value={tempKey}
                 onChange={(e) => setTempKey(e.target.value)}
                 autoComplete="off"

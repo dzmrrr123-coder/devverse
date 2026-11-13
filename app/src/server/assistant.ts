@@ -9,12 +9,13 @@ export { QUICK_ACTIONS }
 export type { QuickAction }
 
 /**
- * Validasi format Google Gemini API Key dari Google AI Studio.
- * Standar Google: berawalan 'AIzaSy' diikuti 33 karakter alphanumeric/dash.
+ * Validasi dasar Google Gemini API Key dari Google AI Studio.
+ * Memastikan kunci tidak kosong, tanpa spasi, dan minimal 8 karakter.
  */
 export function isValidGeminiKey(key: string): boolean {
   if (!key) return false
-  return /^AIzaSy[0-9A-Za-z_-]{33}$/.test(key.trim())
+  const trimmed = key.trim()
+  return trimmed.length >= 8 && !/\s/.test(trimmed)
 }
 
 function buildSystemContext(analysis?: Analysis | null): string {

@@ -56,8 +56,7 @@ export async function handleAssistantChatRequest(
         return json(
           {
             error: 'invalid_key',
-            message:
-              'Format Google Gemini API Key tidak valid. Kunci dari Google AI Studio biasanya berawalan "AIzaSy...".',
+            message: 'Kunci API tidak valid. Pastikan tidak kosong dan tidak mengandung spasi.',
           },
           400,
         )
