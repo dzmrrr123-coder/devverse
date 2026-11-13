@@ -1,0 +1,12 @@
+{
+  "name": "notes-api",
+  "full_name": "devverse-lab/notes-api",
+  "owner": { "login": "devverse-lab" },
+  "default_branch": "main",
+  "description": "API catatan dengan test dan deploy otomatis",
+  "homepage": "https://notes-api.example.dev",
+  "license": { "key": "mit", "spdx_id": "MIT" },
+  "language": "TypeScript",
+  "size": 860,
+  "html_url": "https://github.com/devverse-lab/notes-api"
+}

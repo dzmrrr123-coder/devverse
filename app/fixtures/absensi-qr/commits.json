@@ -1,0 +1,5 @@
+{
+  "status": 403,
+  "message": "API rate limit exceeded for 103.94.12.7. (But here's the good news: Authenticated requests get a higher rate limit.)",
+  "documentation_url": "https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"
+}

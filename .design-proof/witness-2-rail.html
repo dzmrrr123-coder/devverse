@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<!-- EVIDENCE ONLY - a structural witness of direction 2 (asymmetric-split) for design-divergence.ps1.
+     Not product markup, not styled to be shipped. The drawn screen is shots/direction-2.png. -->
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Direction 2 - Meja Kerja (asymmetric-split)</title>
+<style>
+  :root {
+    --bench: #171c1b; --panel: #1f2624; --warm: #f2efe8; --muted: #9aa3a0;
+    --amber: #e0a64b; --terra: #d3775a; --sage: #8fb39b; --hair: #2e3735; --edge: #3a4542;
+  }
+  body { margin: 0; background: var(--bench); color: var(--warm);
+         font: 14px/1.45 "Bricolage Grotesque", system-ui, sans-serif; }
+  .mono { font-family: "Geist Mono", monospace; }
+  .shell { max-width: 932px; }
+
+  /* a standing rail, not a bar lying over the content */
+  header.bar { position: sticky; top: 0; left: 0; display: flex; flex-direction: column;
+               width: 380px; min-height: 100vh; float: left;
+               background: var(--panel); padding: 36px 40px; box-sizing: border-box; }
+  .wordmark { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
+  .repo { font-size: 21px; font-weight: 600; margin: 16px 0 6px; }
+  .desc { color: var(--muted); font-size: 13px; margin: 0; }
+
+  .stations { list-style: none; margin: 60px 0 0; padding: 0;
+              box-shadow: inset 1px 0 0 var(--hair); }
+  .stations li { display: flex; gap: 22px; padding: 22px 0 22px 18px; }
+  .stations .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--sage);
+                   flex: none; margin-top: 6px; }
+  .stations .now .dot { background: transparent; box-shadow: 0 0 0 2px var(--amber); }
+  .stations .ahead .dot { background: transparent; box-shadow: inset 0 0 0 1px var(--edge); }
+  .stations .ahead { color: var(--muted); }
+  .state { display: block; color: var(--muted); font-size: 10px; letter-spacing: .06em; }
+  .stations .now .state { color: var(--amber); }
+
+  main { margin-left: 380px; padding: 28px 64px 60px; box-sizing: border-box; }
+  .topline { display: flex; justify-content: space-between; align-items: center; }
+  .btn { border-radius: 8px; box-shadow: inset 0 0 0 1px var(--edge); background: none;
+         color: var(--warm); padding: 10px 18px; font: inherit; }
+  .now-label { color: var(--amber); font-size: 10px; letter-spacing: .14em;
+               text-transform: uppercase; }
+  .statement { font-size: 58px; font-weight: 600; letter-spacing: -.01em; line-height: 1.17;
+               margin: 18px 0 10px; }
+  .next { color: var(--muted); font-size: 22px; margin: 0 0 34px; }
+
+  .panel { background: var(--panel); border-radius: 12px; padding: 24px 32px 32px; }
+  .panel-head { display: flex; justify-content: space-between; align-items: baseline;
+                color: var(--warm); }
+  .checks { list-style: none; margin: 20px 0 0; padding: 0; }
+  .checks li { display: flex; gap: 28px; align-items: baseline; padding: 20px 0;
+               box-shadow: inset 0 1px 0 var(--hair); }
+  .checks li:first-child { box-shadow: none; }
+  .mark { width: 10px; height: 10px; border-radius: 2px; background: var(--sage); flex: none; }
+  .fail .mark { background: var(--terra); }
+  .unknown .mark { background: transparent; box-shadow: inset 0 0 0 1px var(--muted); }
+  .name { font-size: 17px; font-weight: 500; }
+  .ev { display: block; color: var(--muted); font-size: 11px; }
+  .verdict { margin-left: auto; color: var(--muted); font-size: 11px; }
+  .fail .verdict { color: var(--terra); }
+
+  .fix { display: flex; gap: 28px; align-items: flex-start; padding: 40px 0 0; }
+  .fix .bar-mark { width: 4px; align-self: stretch; background: var(--amber); flex: none; }
+  .fix h2 { font-size: 30px; font-weight: 600; margin: 6px 0 10px; }
+  .fix p { color: var(--muted); margin: 0; max-width: 52ch; }
+
+  footer { margin-left: 380px; padding: 30px 64px 40px; color: var(--muted); font-size: 12px;
+           box-shadow: inset 0 1px 0 var(--hair); box-sizing: border-box; }
+</style>
+</head>
+<body>
+  <header class="bar rail dark">
+    <span class="wordmark mono">Devverse</span>
+    <p class="repo">rizkyfajar/absensi-qr</p>
+    <p class="desc">Absensi kelas pakai QR &mdash; Laravel 11</p>
+    <ol class="stations">
+      <li><span class="dot"></span><span>Nyala<span class="state mono">lulus</span></span></li>
+      <li><span class="dot"></span><span>Bisa dijalankan<span class="state mono">lulus</span></span></li>
+      <li class="now"><span class="dot"></span><span>Bisa dipercaya<span class="state mono">sedang di sini</span></span></li>
+      <li class="ahead"><span class="dot"></span><span>Siap dibagikan<span class="state mono">belum sampai</span></span></li>
+    </ol>
+  </header>
+
+  <main>
+    <section aria-labelledby="summary">
+      <div class="shell">
+        <div class="topline">
+          <span class="mono now-label">Laporan kesiapan</span>
+          <button class="btn">Bagikan</button>
+        </div>
+        <p class="mono now-label" style="margin-top:36px">Sekarang</p>
+        <h1 class="statement" id="summary">Level 2 lulus.</h1>
+        <p class="next">Berikutnya Level 3 &mdash; Bisa dipercaya.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="checks">
+      <div class="shell">
+        <div class="panel dark">
+          <div class="panel-head">
+            <h2 id="checks" style="font-size:16px;margin:0">Level 3 &middot; tiga check</h2>
+            <span class="mono now-label">sekarang di sini</span>
+          </div>
+          <ul class="checks">
+            <li><span class="mark"></span><span><span class="name">Ada test otomatis</span>
+              <span class="ev mono">tests/AbsensiTest.php &middot; tests/QrTest.php</span></span>
+              <span class="verdict mono">lulus</span></li>
+            <li class="fail"><span class="mark"></span><span><span class="name">CI jalan di setiap push</span>
+              <span class="ev mono">tidak ada .github/workflows</span></span>
+              <span class="verdict mono">gagal</span></li>
+            <li class="unknown"><span class="mark"></span><span><span class="name">Riwayat commit terbaca</span>
+              <span class="ev mono">batas API GitHub 60/jam &mdash; coba lagi 20 menit</span></span>
+              <span class="verdict mono">tidak_tahu</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="fix">
+      <div class="shell">
+        <div class="fix">
+          <div class="bar-mark"></div>
+          <div>
+            <p class="mono now-label" style="margin:0">Satu perbaikan berikutnya</p>
+            <h2 id="fix">Tambahkan satu workflow CI</h2>
+            <p>Delapan baris di .github/workflows/test.yml. Tanpa ini tidak ada yang
+              membuktikan kode masih jalan setelah diubah.</p>
+          </div>
+          <button class="btn" style="margin-left:auto">Buka panduan</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="mono">
+    devverse.app/r/7Kq2mNpR4tXa &middot; tautan ini bisa dibuka tanpa akun
+  </footer>
+</body>
+</html>

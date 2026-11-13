@@ -1,0 +1,134 @@
+{
+  "$description": "DEVVERSE /r/:id — derived export of devverse/DESIGN-DIRECTION.md (Meja Kerja, human-picked 12 Nov 2026). Every value traces to one of the ten commitments; the direction document stays the source of truth and this file is never edited by hand on a canvas.",
+  "color": {
+    "$type": "color",
+    "$description": "Commitment 4. Four surface steps, three text steps, one hairline, one accent, three state inks. The accent is spent twice (the trace and the next-fix label) because it is one claim: this is where you are. Every text value below is measured against the surface it actually sits on in the direction document's contrast table; none of them is a tint, and no text is set with an opacity, because an opacity would move the measured ratio.",
+    "surface": {
+      "$description": "Near-black graphite, warmed a little so it reads as a room with a lamp rather than a monitor at night.",
+      "ink": { "$value": { "colorSpace": "srgb", "components": [0.043, 0.063, 0.075] } },
+      "panel": { "$value": { "colorSpace": "srgb", "components": [0.071, 0.102, 0.118] } },
+      "raised": { "$value": { "colorSpace": "srgb", "components": [0.09, 0.133, 0.153] } },
+      "selected": { "$value": { "colorSpace": "srgb", "components": [0.094, 0.129, 0.149] } }
+    },
+    "text": {
+      "$description": "Three steps: the reading, the evidence, and what is not reached yet — all above 5:1 on every surface they appear on.",
+      "primary": { "$value": { "colorSpace": "srgb", "components": [0.937, 0.953, 0.945] } },
+      "secondary": { "$value": { "colorSpace": "srgb", "components": [0.651, 0.702, 0.69] } },
+      "quiet": { "$value": { "colorSpace": "srgb", "components": [0.514, 0.569, 0.557] } }
+    },
+    "rule": {
+      "$description": "Every separator on the page, at 1px — decorative, therefore exempt from the text contrast floor and measured anyway where it is not.",
+      "hairline": { "$value": { "colorSpace": "srgb", "components": [0.149, 0.196, 0.212] } },
+      "soft": { "$value": { "colorSpace": "srgb", "components": [0.11, 0.149, 0.161] } }
+    },
+    "accent": {
+      "$description": "Signal amber, lamp temperature. The trace, the current level's state word, and the next-fix label — one colour for one meaning.",
+      "signal": { "$value": { "colorSpace": "srgb", "components": [0.949, 0.698, 0.404] } }
+    },
+    "state": {
+      "$description": "Verdict ink, always paired with a shape (filled square, filled square, open square) so the page survives greyscale and a printed page. Written out rather than aliased because 2025.10 requires a colour token's value to be its own { colorSpace, components }, not an alias string.",
+      "pass": { "$value": { "colorSpace": "srgb", "components": [0.388, 0.851, 0.776] } },
+      "fail": { "$value": { "colorSpace": "srgb", "components": [0.941, 0.569, 0.42] } },
+      "unknown": { "$value": { "colorSpace": "srgb", "components": [0.651, 0.702, 0.69] } }
+    }
+  },
+
+  "font": {
+    "$description": "Commitment 3 — three families with one job each: a warm grotesque for the sentences, a mono for identifiers, a mono for the interface labels. Nothing else.",
+    "family": {
+      "$type": "fontFamily",
+      "display": { "$value": ["Bricolage Grotesque", "system-ui", "sans-serif"] },
+      "code": { "$value": ["Geist Mono", "ui-monospace", "monospace"] },
+      "label": { "$value": ["IBM Plex Mono", "ui-monospace", "monospace"] }
+    },
+    "weight": {
+      "$type": "fontWeight",
+      "regular": { "$value": 400 },
+      "medium": { "$value": 500 },
+      "semibold": { "$value": 600 }
+    },
+    "size": {
+      "$type": "dimension",
+      "$description": "Six steps carry the page; the two phone values are the same step reduced by one, not a second scale.",
+      "statement": { "$value": { "value": 54, "unit": "px" } },
+      "statementPhone": { "$value": { "value": 34, "unit": "px" } },
+      "fix": { "$value": { "value": 30, "unit": "px" } },
+      "fixPhone": { "$value": { "value": 24, "unit": "px" } },
+      "subline": { "$value": { "value": 19, "unit": "px" } },
+      "repo": { "$value": { "value": 18, "unit": "px" } },
+      "check": { "$value": { "value": 16, "unit": "px" } },
+      "checkPhone": { "$value": { "value": 15, "unit": "px" } },
+      "body": { "$value": { "value": 15, "unit": "px" } },
+      "bodyPhone": { "$value": { "value": 14, "unit": "px" } },
+      "ledger": { "$value": { "value": 13, "unit": "px" } },
+      "control": { "$value": { "value": 12, "unit": "px" } },
+      "label": { "$value": { "value": 11, "unit": "px" } },
+      "telemetry": { "$value": { "value": 10, "unit": "px" } },
+      "micro": { "$value": { "value": 9, "unit": "px" } }
+    },
+    "lineHeight": {
+      "$type": "dimension",
+      "statement": { "$value": { "value": 58, "unit": "px" } },
+      "statementPhone": { "$value": { "value": 38, "unit": "px" } },
+      "fix": { "$value": { "value": 38, "unit": "px" } },
+      "body": { "$value": { "value": 23, "unit": "px" } },
+      "ledger": { "$value": { "value": 19, "unit": "px" } },
+      "telemetry": { "$value": { "value": 15, "unit": "px" } }
+    }
+  },
+
+  "space": {
+    "$type": "dimension",
+    "$description": "Commitment 3. One 4px-rooted ramp with two deliberate absences: nothing between 4 and 8, nothing between 24 and 32. The page uses the top of the ramp for section breaks and the bottom for row internals, which is what makes the dense half read as dense.",
+    "0": { "$value": { "value": 0, "unit": "px" } },
+    "1": { "$value": { "value": 2, "unit": "px" } },
+    "2": { "$value": { "value": 4, "unit": "px" } },
+    "3": { "$value": { "value": 8, "unit": "px" } },
+    "4": { "$value": { "value": 12, "unit": "px" } },
+    "5": { "$value": { "value": 16, "unit": "px" } },
+    "6": { "$value": { "value": 20, "unit": "px" } },
+    "7": { "$value": { "value": 24, "unit": "px" } },
+    "8": { "$value": { "value": 32, "unit": "px" } },
+    "9": { "$value": { "value": 44, "unit": "px" } },
+    "10": { "$value": { "value": 48, "unit": "px" } },
+    "11": { "$value": { "value": 64, "unit": "px" } }
+  },
+
+  "radius": {
+    "$type": "dimension",
+    "$description": "Commitment 6: two values only. A panel is square; a control is a control. There is no third radius for a card, because there are no cards.",
+    "none": { "$value": { "value": 0, "unit": "px" } },
+    "control": { "$value": { "value": 2, "unit": "px" } }
+  },
+
+  "size": {
+    "$type": "dimension",
+    "$description": "The drawing's fixed measures — recorded so the build's grid is the canvas's grid, not an approximation of it.",
+    "page": { "$value": { "value": 1440, "unit": "px" } },
+    "phone": { "$value": { "value": 390, "unit": "px" } },
+    "rail": { "$value": { "value": 312, "unit": "px" } },
+    "content": { "$value": { "value": 1000, "unit": "px" } },
+    "panel": { "$value": { "value": 1000, "unit": "px" } },
+    "panelPhone": { "$value": { "value": 350, "unit": "px" } },
+    "gutter": { "$value": { "value": 64, "unit": "px" } },
+    "marginPhone": { "$value": { "value": 20, "unit": "px" } },
+    "controlHeight": { "$value": { "value": 40, "unit": "px" } },
+    "stripHeight": { "$value": { "value": 60, "unit": "px" } },
+    "hairline": { "$value": { "value": 1, "unit": "px" } },
+    "trace": { "$value": { "value": 2, "unit": "px" } }
+  },
+
+  "motion": {
+    "$description": "Commitment 8. Two durations, one easing, and a reduced-motion state that turns both into zero. Nothing on the page animates on load.",
+    "duration": {
+      "$type": "duration",
+      "instant": { "$value": { "value": 0, "unit": "ms" } },
+      "swap": { "$value": { "value": 120, "unit": "ms" } },
+      "confirm": { "$value": { "value": 1200, "unit": "ms" } }
+    },
+    "ease": {
+      "$type": "cubicBezier",
+      "standard": { "$value": [0.2, 0, 0, 1] }
+    }
+  }
+}

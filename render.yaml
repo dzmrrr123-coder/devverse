@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: devverse
+    env: node
+    buildCommand: pnpm --filter devverse install && pnpm --filter devverse build
+    startCommand: pnpm --filter devverse preview
+    envVars:
+      - key: NODE_ENV
+        value: production

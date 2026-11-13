@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<!-- EVIDENCE ONLY - a structural witness of direction 1 (ledger-rows) for design-divergence.ps1.
+     Not product markup, not styled to be shipped. The drawn screen is shots/direction-1.png. -->
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Direction 1 - Papan Ukur (ledger-rows)</title>
+<style>
+  :root {
+    --ink: #101614; --ink-2: #55605c; --hair: #d3d9d6; --rust: #923d19;
+    --sheet: #f1f4f2; --dim: #8a938f;
+    --measure: 1408px;
+  }
+  body { margin: 0; background: var(--sheet); color: var(--ink);
+         font: 15px/1.5 "Work Sans", system-ui, sans-serif; }
+  .shell { width: min(var(--measure), 100% - 32px); margin: 0 auto; }
+  .mono { font-family: "IBM Plex Mono", monospace; }
+
+  header.bar { border-bottom: 1px solid var(--hair); }
+  header.bar .shell { display: flex; align-items: center; justify-content: space-between;
+                      height: 64px; }
+  .wordmark { font-size: 13px; font-weight: 600; letter-spacing: .12em; }
+
+  section { border-top: 1px solid var(--hair); padding: 32px 0; }
+  section.masthead { border-top: 0; padding-top: 40px; }
+  h1 { font-size: 46px; line-height: 1.17; letter-spacing: -.015em; margin: 0 0 11px; }
+  h2 { font-size: 19px; font-weight: 600; margin: 0; }
+  .sub { color: var(--ink-2); font-size: 19px; margin: 0; }
+  .repo { font-size: 34px; font-weight: 600; letter-spacing: -.01em; margin: 0; }
+  .meta { color: var(--ink-2); font-size: 12px; }
+
+  /* the ledger: a measure rail, gutter labels, ruled rows */
+  .ledger { display: grid; grid-template-columns: 120px 1fr; column-gap: 44px;
+            position: relative; }
+  .ledger::before { content: ""; position: absolute; left: 196px; top: 0; bottom: 0;
+                    width: 1px; background: var(--hair); }
+  .level { display: contents; }
+  .gutter { grid-column: 1; color: var(--ink-2); font-size: 11px; letter-spacing: .08em;
+            text-align: right; padding: 12px 0 0; text-transform: uppercase; }
+  .row { grid-column: 2; border-bottom: 1px solid var(--hair); padding: 11px 0 12px;
+         display: flex; justify-content: space-between; gap: 32px; }
+  .row .checks { color: var(--ink-2); font-size: 12px; }
+  .frontier { grid-column: 2; padding: 10px 0 0; }
+  .frontier h2 { font-size: 30px; }
+  .frontier .here { color: var(--rust); font-size: 10px; letter-spacing: .12em;
+                    text-transform: uppercase; display: block; margin: 8px 0 22px; }
+  .check { display: flex; gap: 26px; border-top: 1px solid var(--hair); padding: 11px 0;
+           align-items: baseline; }
+  .check .mark { width: 8px; height: 8px; background: var(--ink); flex: none; }
+  .check.fail .mark { background: var(--rust); }
+  .check.unknown .mark { background: transparent; box-shadow: inset 0 0 0 1px var(--ink-2); }
+  .check .name { font-size: 16px; font-weight: 500; }
+  .check .ev { color: var(--ink-2); font-size: 12px; }
+  .check .verdict { margin-left: auto; color: var(--ink-2); font-size: 12px; }
+  .check.fail .verdict { color: var(--rust); }
+  .ahead { color: var(--dim); }
+
+  .fix { border-top: 2px solid var(--rust); padding-top: 20px;
+         display: flex; justify-content: space-between; gap: 48px; }
+  .label { color: var(--rust); font-size: 10px; letter-spacing: .12em;
+           text-transform: uppercase; }
+  .fix h2 { font-size: 28px; margin: 4px 0 10px; }
+  .fix p { color: var(--ink-2); margin: 0; max-width: 46ch; }
+
+  footer { border-top: 1px solid var(--hair); padding: 22px 0 40px; color: var(--ink-2);
+           font-size: 12px; }
+</style>
+</head>
+<body>
+  <header class="bar">
+    <div class="shell">
+      <span class="wordmark">DEVVERSE</span>
+      <span class="mono meta">laporan kesiapan</span>
+      <button class="mono">Bagikan</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="masthead" aria-labelledby="repo">
+      <div class="shell">
+        <p class="label mono">Repository</p>
+        <h1 class="repo" id="repo">rizkyfajar/absensi-qr</h1>
+        <p class="sub">Absensi kelas pakai QR &mdash; Laravel 11</p>
+        <p class="mono meta">a3f9c21 &middot; 12 Nov 2026 14:07 WIB &middot; engine v0.4.2</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="report">
+      <div class="shell">
+        <h2 id="report" hidden>Laporan kesiapan</h2>
+        <p class="statement">Level 2 lulus.</p>
+        <p class="sub">Berikutnya Level 3 &mdash; Bisa dipercaya: satu check lulus, satu gagal,
+          satu belum bisa dibaca.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="ladder">
+      <div class="shell">
+        <h2 id="ladder" hidden>Tangga kesiapan</h2>
+        <div class="ledger">
+          <div class="level">
+            <span class="gutter mono">Level 1</span>
+            <div class="row">
+              <span><strong>Nyala</strong><br><span class="checks mono">readme_ada &middot; kode_utama &middot; tanpa_rahasia</span></span>
+              <span class="mono verdict">lulus</span>
+            </div>
+          </div>
+          <div class="level">
+            <span class="gutter mono">Level 2</span>
+            <div class="row">
+              <span><strong>Bisa dijalankan</strong><br><span class="checks mono">cara_install &middot; lockfile &middot; env_contoh</span></span>
+              <span class="mono verdict">lulus</span>
+            </div>
+          </div>
+          <div class="level">
+            <span class="gutter mono">Level 3</span>
+            <div class="frontier">
+              <h2>Bisa dipercaya</h2>
+              <span class="here mono">sekarang di sini</span>
+              <div class="check">
+                <span class="mark"></span>
+                <span><span class="name">Ada test otomatis</span><br>
+                  <span class="ev mono">tests/AbsensiTest.php, tests/QrTest.php</span></span>
+                <span class="verdict mono">lulus</span>
+              </div>
+              <div class="check fail">
+                <span class="mark"></span>
+                <span><span class="name">CI jalan di setiap push</span><br>
+                  <span class="ev mono">tidak ada .github/workflows</span></span>
+                <span class="verdict mono">gagal</span>
+              </div>
+              <div class="check unknown">
+                <span class="mark"></span>
+                <span><span class="name">Riwayat commit terbaca</span><br>
+                  <span class="ev mono">batas API GitHub 60/jam &mdash; coba lagi sekitar 20 menit</span></span>
+                <span class="verdict mono">tidak_tahu</span>
+              </div>
+            </div>
+          </div>
+          <div class="level">
+            <span class="gutter mono ahead">Level 4</span>
+            <div class="row ahead">
+              <span><strong>Siap dibagikan</strong></span>
+              <span class="mono verdict">belum sampai</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="fix">
+      <div class="shell">
+        <div class="fix">
+          <div>
+            <p class="label mono">Satu perbaikan berikutnya</p>
+            <h2 id="fix">Tambahkan satu workflow CI</h2>
+            <p>Delapan baris di .github/workflows/test.yml. Tanpa ini, tidak ada yang
+              membuktikan kode masih jalan setelah diubah orang lain.</p>
+          </div>
+          <div>
+            <p class="mono meta">8 baris &middot; .github/workflows/test.yml</p>
+            <a href="#">lihat caranya</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell mono">
+      devverse.app/r/7Kq2mNpR4tXa &middot; tautan ini bisa dibuka tanpa akun
+    </div>
+  </footer>
+</body>
+</html>

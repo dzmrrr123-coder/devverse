@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<!-- EVIDENCE ONLY - a structural witness of direction 3 (document-flow) for design-divergence.ps1.
+     Not product markup, not styled to be shipped. The drawn screen is shots/direction-3.png. -->
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Direction 3 - Jalur (document-flow)</title>
+<style>
+  :root {
+    --paper: #fbf7f0; --ink: #241e19; --ink-2: #6b6156; --dim: #9a8e7e;
+    --rule: #e2d9c9; --blue: #2f4e6b;
+  }
+  body { margin: 0; background: var(--paper); color: var(--ink);
+         font: 17px/1.6 "Crimson Pro", Georgia, serif; }
+  .display { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; }
+  .shell { width: min(1040px, 100% - 48px); margin: 0 auto; }
+  .measure { width: min(640px, 100%); }
+
+  header.bar { }
+  header.bar .shell { display: flex; justify-content: space-between; align-items: baseline;
+                      padding: 40px 0 18px; box-shadow: inset 0 -1px 0 var(--rule); }
+
+  section { padding: 26px 0; }
+  .masthead .repo { font-size: 38px; margin: 0 0 10px; }
+  .byline { color: var(--dim); font-size: 13px; margin: 0; }
+  .statement { font-size: 68px; line-height: 1.09; margin: 26px 0 0; }
+  .statement em { color: var(--ink-2); }
+  .lede { color: var(--ink-2); font-size: 18px; max-width: 33em; margin: 26px 0 0; }
+
+  /* the ladder is the ruled margin: one continuous line, the frontier segment in ink */
+  .ladder { width: min(700px, 100%); box-shadow: inset 1px 0 0 var(--rule);
+            padding-left: 20px; margin-left: 130px; }
+  .level { display: grid; grid-template-columns: 116px 1fr; column-gap: 0; }
+  .gutter { grid-column: 1; text-align: right; padding-right: 16px; }
+  .num { color: var(--dim); font-size: 22px; }
+  .body { grid-column: 2; padding-bottom: 22px; box-shadow: inset 0 -1px 0 var(--rule); }
+  .level h2 { font-size: 26px; margin: 0; }
+  .level .meta { color: var(--dim); font-size: 14px; margin: 4px 0 0; }
+
+  .frontier .body { padding-bottom: 26px; }
+  .frontier .num { color: var(--blue); }
+  .frontier h2 { font-size: 34px; }
+  .here { color: var(--blue); font-size: 12px; letter-spacing: .16em;
+          text-transform: uppercase; display: block; margin: 6px 0 22px; }
+
+  .check { display: grid; grid-template-columns: 94px 1fr; padding: 6px 0 14px; }
+  .verdict { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-size: 16px;
+             color: var(--ink-2); }
+  .fail .verdict { color: var(--blue); }
+  .unknown .verdict { color: var(--dim); }
+  .check .name { font-weight: 600; font-size: 17px; display: block; }
+  .check .ev { color: var(--dim); font-size: 13px; display: block; }
+
+  .annotation { float: right; width: 260px; margin: 6px 0 0 60px; color: var(--blue);
+                font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-size: 22px; }
+
+  .fix { width: min(640px, 100%); box-shadow: inset 0 1px 0 var(--ink); padding-top: 14px; }
+  .fix .label { font-family: "Instrument Serif", Georgia, serif; font-style: italic;
+                font-size: 22px; color: var(--blue); margin: 0; }
+  .fix h2 { font-size: 32px; margin: 6px 0 12px; }
+
+  footer { padding: 26px 0 40px; color: var(--dim); font-size: 13px;
+           box-shadow: inset 0 1px 0 var(--rule); }
+</style>
+</head>
+<body>
+  <header class="bar">
+    <div class="shell">
+      <span class="display" style="font-size:24px">Devverse</span>
+      <a href="#" style="color:inherit;font-size:14px">Bagikan</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="masthead hero" aria-labelledby="title">
+      <div class="shell measure">
+        <h1 class="repo display" id="title">rizkyfajar/absensi-qr</h1>
+        <p class="byline">a3f9c21 &middot; dianalisis 12 Nov 2026 14:07 WIB &middot; engine v0.4.2</p>
+        <p class="statement display">Level 2 lulus.<br><em>Berikutnya Level 3.</em></p>
+        <p class="lede">Bisa dipercaya. Tiga check di level itu &mdash; satu sudah lulus, satu gagal,
+          satu belum bisa dibaca.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="ladder">
+      <div class="shell">
+        <div class="ladder">
+          <h2 id="ladder" hidden>Tangga kesiapan</h2>
+          <div class="level">
+            <div class="gutter"><span class="num display">01</span></div>
+            <div class="body">
+              <h2 class="display">Nyala</h2>
+              <p class="meta">lulus &mdash; readme_ada, kode_utama, tanpa_rahasia</p>
+            </div>
+          </div>
+          <div class="level">
+            <div class="gutter"><span class="num display">02</span></div>
+            <div class="body">
+              <h2 class="display">Bisa dijalankan</h2>
+              <p class="meta">lulus &mdash; cara_install, lockfile, env_contoh</p>
+            </div>
+          </div>
+          <div class="level frontier">
+            <div class="gutter"><span class="num display">03</span></div>
+            <div class="body">
+              <h2 class="display">Bisa dipercaya</h2>
+              <span class="here">sedang di sini</span>
+              <div class="check">
+                <span class="verdict">lulus</span>
+                <span><span class="name">Ada test otomatis</span>
+                  <span class="ev">tests/AbsensiTest.php, tests/QrTest.php</span></span>
+              </div>
+              <div class="check fail">
+                <span class="verdict">gagal</span>
+                <span><span class="name">CI jalan di setiap push</span>
+                  <span class="ev">tidak ada .github/workflows</span></span>
+              </div>
+              <div class="check unknown">
+                <span class="verdict">tidak tahu</span>
+                <span><span class="name">Riwayat commit terbaca</span>
+                  <span class="ev">batas API GitHub 60/jam &mdash; coba lagi sekitar 20 menit</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="level">
+            <div class="gutter"><span class="num display">04</span></div>
+            <div class="body">
+              <h2 class="display" style="color:var(--dim)">Siap dibagikan</h2>
+              <p class="meta">belum sampai</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="fix">
+      <div class="shell">
+        <p class="annotation">ini yang menahan &rarr;</p>
+        <div class="fix">
+          <p class="label">Satu perbaikan berikutnya</p>
+          <h2 class="display" id="fix">Tambahkan satu workflow CI</h2>
+          <p>Delapan baris di .github/workflows/test.yml. Tanpa ini tidak ada yang
+            membuktikan kode masih jalan setelah diubah.</p>
+          <a href="#" style="font-size:14px">lihat caranya</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell">devverse.app/r/7Kq2mNpR4tXa &middot; tautan ini dibuka tanpa akun</div>
+  </footer>
+</body>
+</html>

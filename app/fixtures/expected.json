@@ -1,0 +1,57 @@
+{
+  "_description": "Ditulis tangan sebelum engine dijalankan. Ini oracle, bukan hasil generate. Setiap perubahan verdict di engine harus mengubah berkas ini lebih dulu, dengan alasan yang dicatat di PLAN atau di sini. Set 10 check mengikuti keputusan manusia 12 Nov 2026 (PLAN.md §10): demo_terpasang dan deskripsi_repo dihapus, lisensi_ada menjadi satu-satunya check Level 4.",
+  "engineVersion": "1.0.0",
+  "fixtures": {
+    "bare-html": {
+      "reachedLevel": 1,
+      "frontierLevel": 2,
+      "nextFix": "cara_install",
+      "checks": {
+        "readme_ada": "lulus",
+        "kode_utama": "lulus",
+        "tanpa_rahasia": "lulus",
+        "cara_install": "gagal",
+        "lockfile": "lulus",
+        "env_contoh": "lulus",
+        "ada_test": "gagal",
+        "ci_jalan": "gagal",
+        "riwayat_commit": "lulus",
+        "lisensi_ada": "gagal"
+      }
+    },
+    "absensi-qr": {
+      "reachedLevel": 2,
+      "frontierLevel": 3,
+      "nextFix": "ci_jalan",
+      "checks": {
+        "readme_ada": "lulus",
+        "kode_utama": "lulus",
+        "tanpa_rahasia": "lulus",
+        "cara_install": "lulus",
+        "lockfile": "lulus",
+        "env_contoh": "lulus",
+        "ada_test": "lulus",
+        "ci_jalan": "gagal",
+        "riwayat_commit": "tidak_tahu",
+        "lisensi_ada": "lulus"
+      }
+    },
+    "siap-rilis": {
+      "reachedLevel": 4,
+      "frontierLevel": null,
+      "nextFix": null,
+      "checks": {
+        "readme_ada": "lulus",
+        "kode_utama": "lulus",
+        "tanpa_rahasia": "lulus",
+        "cara_install": "lulus",
+        "lockfile": "lulus",
+        "env_contoh": "lulus",
+        "ada_test": "lulus",
+        "ci_jalan": "lulus",
+        "riwayat_commit": "lulus",
+        "lisensi_ada": "lulus"
+      }
+    }
+  }
+}

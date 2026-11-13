@@ -1,0 +1,10 @@
+{
+  "sha": "main",
+  "truncated": false,
+  "tree": [
+    { "path": "README.md", "type": "blob" },
+    { "path": "index.html", "type": "blob" },
+    { "path": "style.css", "type": "blob" },
+    { "path": "img/logo.png", "type": "blob" }
+  ]
+}

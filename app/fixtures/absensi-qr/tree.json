@@ -1,0 +1,17 @@
+{
+  "sha": "main",
+  "truncated": false,
+  "tree": [
+    { "path": ".env.example", "type": "blob" },
+    { "path": "README.md", "type": "blob" },
+    { "path": "app/Http/Controllers/AbsensiController.php", "type": "blob" },
+    { "path": "app/Models/Absensi.php", "type": "blob" },
+    { "path": "artisan", "type": "blob" },
+    { "path": "composer.json", "type": "blob" },
+    { "path": "composer.lock", "type": "blob" },
+    { "path": "public/index.php", "type": "blob" },
+    { "path": "routes/web.php", "type": "blob" },
+    { "path": "tests/Feature/AbsensiTest.php", "type": "blob" },
+    { "path": "tests/Feature/QrTest.php", "type": "blob" }
+  ]
+}

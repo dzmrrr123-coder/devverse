@@ -1,0 +1,72 @@
+[
+  {
+    "sha": "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678",
+    "commit": {
+      "message": "tambah endpoint catatan",
+      "committer": { "date": "2026-11-10T08:30:00Z" }
+    }
+  },
+  {
+    "sha": "a2b3c4d5e6f708192a3b4c5d6e7f809123456789",
+    "commit": {
+      "message": "tambah test",
+      "committer": { "date": "2026-11-09T15:12:00Z" }
+    }
+  },
+  {
+    "sha": "a3c4d5e6f708192a3b4c5d6e7f80912345678901",
+    "commit": {
+      "message": "tambah workflow ci",
+      "committer": { "date": "2026-11-08T11:05:00Z" }
+    }
+  },
+  {
+    "sha": "a4d5e6f708192a3b4c5d6e7f8091234567890123",
+    "commit": {
+      "message": "tambah env example",
+      "committer": { "date": "2026-11-07T09:20:00Z" }
+    }
+  },
+  {
+    "sha": "a5e6f708192a3b4c5d6e7f809123456789012345",
+    "commit": {
+      "message": "tambah lisensi",
+      "committer": { "date": "2026-11-06T16:44:00Z" }
+    }
+  },
+  {
+    "sha": "a6f708192a3b4c5d6e7f80912345678901234567",
+    "commit": {
+      "message": "tambah deskripsi",
+      "committer": { "date": "2026-11-05T10:02:00Z" }
+    }
+  },
+  {
+    "sha": "a708192a3b4c5d6e7f8091234567890123456789",
+    "commit": {
+      "message": "tambah homepage",
+      "committer": { "date": "2026-11-04T13:31:00Z" }
+    }
+  },
+  {
+    "sha": "a8192a3b4c5d6e7f809123456789012345678901",
+    "commit": {
+      "message": "tambah lockfile",
+      "committer": { "date": "2026-11-03T08:15:00Z" }
+    }
+  },
+  {
+    "sha": "a92a3b4c5d6e7f80912345678901234567890123",
+    "commit": {
+      "message": "struktur awal",
+      "committer": { "date": "2026-11-02T17:09:00Z" }
+    }
+  },
+  {
+    "sha": "aa3b4c5d6e7f8091234567890123456789012345",
+    "commit": {
+      "message": "inisialisasi proyek",
+      "committer": { "date": "2026-11-01T09:00:00Z" }
+    }
+  }
+]

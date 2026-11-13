@@ -1,0 +1,12 @@
+{
+  "name": "absensi-qr",
+  "full_name": "rizkyfajar/absensi-qr",
+  "owner": { "login": "rizkyfajar" },
+  "default_branch": "main",
+  "description": "Absensi QR untuk ekstrakurikuler",
+  "homepage": null,
+  "license": { "key": "mit", "spdx_id": "MIT" },
+  "language": "PHP",
+  "size": 2400,
+  "html_url": "https://github.com/rizkyfajar/absensi-qr"
+}

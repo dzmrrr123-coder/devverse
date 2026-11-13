@@ -1,0 +1,12 @@
+{
+  "name": "tugas-html",
+  "full_name": "siswa-smk/tugas-html",
+  "owner": { "login": "siswa-smk" },
+  "default_branch": "main",
+  "description": "Tugas akhir kelas X - halaman profil sekolah",
+  "homepage": null,
+  "license": null,
+  "language": "HTML",
+  "size": 12,
+  "html_url": "https://github.com/siswa-smk/tugas-html"
+}

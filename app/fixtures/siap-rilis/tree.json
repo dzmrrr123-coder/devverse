@@ -1,0 +1,15 @@
+{
+  "sha": "main",
+  "truncated": false,
+  "tree": [
+    { "path": ".env.example", "type": "blob" },
+    { "path": ".github/workflows/ci.yml", "type": "blob" },
+    { "path": "LICENSE", "type": "blob" },
+    { "path": "README.md", "type": "blob" },
+    { "path": "package.json", "type": "blob" },
+    { "path": "pnpm-lock.yaml", "type": "blob" },
+    { "path": "src/app.ts", "type": "blob" },
+    { "path": "src/index.ts", "type": "blob" },
+    { "path": "tests/notes.test.ts", "type": "blob" }
+  ]
+}

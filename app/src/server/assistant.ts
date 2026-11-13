@@ -1,0 +1,268 @@
+import { getDatabase } from './db'
+import { createAnalysisId } from './store'
+import type { Analysis } from '../engine/types'
+import { guideFor } from '../engine/guide'
+import { QUICK_ACTIONS } from '../engine/assistant-types'
+import type { QuickAction } from '../engine/assistant-types'
+
+export { QUICK_ACTIONS }
+export type { QuickAction }
+
+function buildSystemContext(analysis?: Analysis | null): string {
+  if (!analysis) {
+    return `Kamu adalah Asisten AI Devverse — mentor coding ramah, santai, dan praktis untuk siswa SMK jurusan RPL dan fresh graduate Indonesia. Bantu mereka memahami konsep rekayasa software dengan contoh kode konkret dan penjelasan sederhana.`
+  }
+
+  const failingChecks = analysis.checks
+    .filter((c) => c.verdict === 'gagal')
+    .map((c) => `- ${guideFor(c.id).name} (${c.id}): ${c.evidence}`)
+    .join('\n')
+
+  const passedChecks = analysis.checks
+    .filter((c) => c.verdict === 'lulus')
+    .map((c) => `- ${guideFor(c.id).name} (${c.id})`)
+    .join('\n')
+
+  const nextFixText = analysis.nextFix
+    ? `${guideFor(analysis.nextFix.id).fix.title} (${guideFor(analysis.nextFix.id).fix.body})`
+    : 'Semua check lulus.'
+
+  return `Kamu adalah Asisten AI Devverse — mentor coding ramah, santai, dan praktis untuk siswa SMK jurusan RPL dan fresh graduate Indonesia.
+
+KONTEKS PROYEK SISWA SAAT INI:
+- Repository: ${analysis.repo.fullName} (${analysis.repo.url})
+- Deskripsi: ${analysis.repo.description ?? 'Tidak ada deskripsi'}
+- Bahasa Utama: ${analysis.repo.language ?? 'Belum terdeteksi'}
+- Level Kesiapan Saat Ini: Level ${analysis.reachedLevel ?? '1 belum lulus'}
+- Level Frontier: Level ${analysis.frontierLevel ?? 'Selesai'}
+- Satu Perbaikan Berikutnya: ${nextFixText}
+
+Check yang Lulus:
+${passedChecks || '- Belum ada'}
+
+Check yang Masih Gagal:
+${failingChecks || '- Tidak ada'}
+
+INSTRUKSI MENJAWAB:
+1. Gunakan bahasa Indonesia yang santai, menyemangati, dan to the point (layaknya kakak tingkat atau senior dev yang membimbing adiknya).
+2. Hindari jargon rumit tanpa penjelasan singkat.
+3. Selalu sertakan blok kode atau contoh berkas konkret yang bisa langsung disalin siswa ke repositorinya.
+4. Jika siswa memilih "Analisa lah projek ku untuk pengembangan selanjutnya":
+   - Berikan apresiasi atas pencapaian level saat ini.
+   - Usulkan 3-4 ide pengembangan fitur berikutnya yang realistis dan menarik di mata penguji/rekruter magang.
+   - Usulkan peningkatan teknis (misal: validasi input, testing, struktur modular).
+   - Berikan tips portofolio agar proyek ini menonjol saat melamar kerja.`
+}
+
+export async function callGeminiApi(
+  apiKey: string,
+  systemInstruction: string,
+  userMessage: string,
+): Promise<string> {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      systemInstruction: {
+        parts: [{ text: systemInstruction }],
+      },
+      contents: [
+        {
+          role: 'user',
+          parts: [{ text: userMessage }],
+        },
+      ],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 2048,
+      },
+    }),
+  })
+
+  if (!response.ok) {
+    const errText = await response.text()
+    throw new Error(`Gemini API error (${response.status}): ${errText}`)
+  }
+
+  const data = (await response.json()) as {
+    candidates?: Array<{
+      content?: {
+        parts?: Array<{ text?: string }>
+      }
+    }>
+  }
+
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text
+  if (!text) throw new Error('Gemini API mengembalikan respons kosong.')
+  return text
+}
+
+export async function askAssistant(params: {
+  userId: string
+  analysisId?: string | null
+  analysis?: Analysis | null
+  action?: QuickAction
+  userPrompt: string
+  apiKeyOverride?: string
+}): Promise<{ reply: string }> {
+  const prompt =
+    params.action && params.action !== 'general_chat'
+      ? QUICK_ACTIONS[params.action].prompt
+      : params.userPrompt
+
+  if (!prompt.trim()) {
+    throw new Error('Pesan pertanyaan tidak boleh kosong.')
+  }
+
+  const systemContext = buildSystemContext(params.analysis)
+  const apiKey = params.apiKeyOverride || process.env.GEMINI_API_KEY
+
+  let reply = ''
+
+  if (apiKey && apiKey !== 'none') {
+    try {
+      reply = await callGeminiApi(apiKey, systemContext, prompt)
+    } catch (err) {
+      console.warn('Gagal memanggil Gemini API, beralih ke fallback cerdas:', err)
+      reply = generateFallbackReply(params.analysis, params.action, prompt)
+    }
+  } else {
+    reply = generateFallbackReply(params.analysis, params.action, prompt)
+  }
+
+  // Simpan riwayat chat ke database
+  const db = await getDatabase()
+  const msgUser = createAnalysisId()
+  const msgAssistant = createAnalysisId()
+
+  await db.query(
+    'insert into assistant_messages (id, user_id, analysis_id, role, content) values ($1, $2, $3, $4, $5)',
+    [msgUser, params.userId, params.analysisId ?? null, 'user', prompt],
+  )
+  await db.query(
+    'insert into assistant_messages (id, user_id, analysis_id, role, content) values ($1, $2, $3, $4, $5)',
+    [msgAssistant, params.userId, params.analysisId ?? null, 'assistant', reply],
+  )
+
+  return { reply }
+}
+
+function generateFallbackReply(
+  analysis: Analysis | null | undefined,
+  action?: QuickAction,
+  prompt?: string,
+): string {
+  const repoName = analysis?.repo.name || 'proyekmu'
+  const lang = analysis?.repo.language || 'kode'
+
+  if (action === 'analyze_roadmap' || prompt?.includes('Analisa lah')) {
+    return `### Analisa Pengembangan Proyek: ${repoName}
+
+Keren! Proyekmu saat ini sudah berada di **Level ${analysis?.reachedLevel ?? 1}**. Untuk membuat portofolio ini semakin menjual di mata penguji dan rekruter industri, berikut rekomendasi roadmap pengembangannya:
+
+#### 1. Pengembangan Fitur Utama (Functional Roadmap)
+- **Otomatisasi Alur Pengguna**: Tambahkan fitur ekspor data (PDF/Excel) atau notifikasi otomatis (email/WhatsApp webhook).
+- **Manajemen Role & Akses**: Jika saat ini hanya satu peran pengguna, kembangkan menjadi multi-role (Admin vs Siswa/User) dengan proteksi hak akses yang ketat.
+- **Pencarian & Filter Cepat**: Tambahkan pencarian data dengan debouncing dan pagination server-side.
+
+#### 2. Peningkatan Standar Rekayasa (Technical Excellence)
+- **Validasi Data**: Pastikan semua input form divalidasi ketat di sisi server untuk mencegah injeksi.
+- **Unit Testing Otomatis**: Buat minimal 3-5 unit test untuk menguji fungsi bisnis paling krusial.
+- **Struktur Kode Modular**: Pisahkan logika bisnis dari tampilan antarmuka (UI).
+
+#### 3. Kesiapan Portofolio Karier
+- Tambahkan screenshot/demo GIF cara kerja proyek di README.
+- Catat arsitektur dan alasan pemilihan teknologi di dokumentasi agar bisa kamu jelaskan dengan percaya diri saat wawancara teknis.`
+  }
+
+  if (action === 'draft_readme') {
+    return `# ${repoName}
+
+Proyek aplikasi ${lang} yang dikembangkan untuk mempermudah alur kerja secara praktis dan terstruktur.
+
+## Fitur Utama
+- Antarmuka responsif dan ramah pengguna
+- Manajemen data yang terstruktur
+- Penanganan error yang informatif
+
+## Prasyarat
+- Git
+- Runtime / Compiler untuk ${lang}
+
+## Cara Menjalankan
+1. Clone repositori ini:
+   \`\`\`bash
+   git clone ${analysis?.repo.url ?? 'https://github.com/username/repo'}.git
+   cd ${repoName}
+   \`\`\`
+2. Pasang dependensi dan jalankan:
+   \`\`\`bash
+   # Sesuaikan dengan package manager proyekmu
+   pnpm install
+   pnpm dev
+   \`\`\`
+
+## Lisensi
+Didistribusikan di bawah lisensi MIT.`
+  }
+
+  if (action === 'draft_ci') {
+    return `\`\`\`yaml
+name: CI Test & Build
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install & Run Test
+        run: |
+          npm install
+          npm test --if-present
+\`\`\``
+  }
+
+  if (action === 'draft_env') {
+    return `# Konfigurasi Lingkungan (Salin ke .env lokal, JANGAN commit berkas .env asli)
+PORT=3000
+NODE_ENV=development
+DATABASE_URL=postgres://user:password@localhost:5432/dbname
+API_SECRET_KEY=ganti_dengan_kunci_rahasia_lokal`
+  }
+
+  return `Halo! Untuk proyek **${repoName}**, fokus utamamu saat ini adalah menyelesaikan target perbaikan di **Level ${analysis?.frontierLevel ?? 1}**. Ada bagian kode atau konfigurasi yang ingin saya bantu buatkan drafnya?`
+}
+
+export async function getConversationHistory(
+  userId: string,
+  analysisId?: string | null,
+): Promise<Array<{ id: string; role: 'user' | 'assistant'; content: string; createdAt: string }>> {
+  const db = await getDatabase()
+  const res = analysisId
+    ? await db.query<{ id: string; role: 'user' | 'assistant'; content: string; created_at: string }>(
+        'select id, role, content, created_at from assistant_messages where user_id = $1 and analysis_id = $2 order by created_at asc limit 50',
+        [userId, analysisId],
+      )
+    : await db.query<{ id: string; role: 'user' | 'assistant'; content: string; created_at: string }>(
+        'select id, role, content, created_at from assistant_messages where user_id = $1 order by created_at asc limit 50',
+        [userId],
+      )
+
+  return res.rows.map((r) => ({
+    id: r.id,
+    role: r.role,
+    content: r.content,
+    createdAt: r.created_at,
+  }))
+}
