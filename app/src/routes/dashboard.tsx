@@ -66,8 +66,8 @@ function DashboardPage() {
   }, [messages, chatLoading])
 
   async function handleLogout() {
-    await fetch('/api/auth/logout', { method: 'POST' })
-    await navigate({ to: '/login' })
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
+    window.location.href = '/login'
   }
 
   async function handleAnalyzeAndSave(e: React.FormEvent) {
@@ -135,6 +135,7 @@ function DashboardPage() {
     try {
       const res = await fetch('/api/assistant/chat', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           action: action ?? 'general_chat',

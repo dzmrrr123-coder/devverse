@@ -1,8 +1,5 @@
 import { createMiddleware, createServerFn } from '@tanstack/react-start'
-import { getDatabase } from './db'
-import { getServerSession } from './auth'
 import type { User } from './auth'
-import { getConversationHistory } from './assistant'
 
 export type SavedProjectItem = {
   id: string
@@ -28,6 +25,14 @@ const authContextMiddleware = createMiddleware().server(async ({ next, request }
 export const getDashboardData = createServerFn({ method: 'GET' })
   .middleware([authContextMiddleware])
   .handler(async ({ context }): Promise<DashboardData | null> => {
+    const [{ getServerSession }, { getDatabase }, { pgliteAnalysisStore }, { getConversationHistory }] =
+      await Promise.all([
+        import('./auth'),
+        import('./db'),
+        import('./store'),
+        import('./assistant'),
+      ])
+
     const user = await getServerSession(context.request)
     if (!user) return null
 
@@ -49,9 +54,7 @@ export const getDashboardData = createServerFn({ method: 'GET' })
       [user.id],
     )
 
-    const { pgliteAnalysisStore } = await import('./store')
     const store = pgliteAnalysisStore()
-
     const projects: SavedProjectItem[] = await Promise.all(
       projectsRes.rows.map(async (r) => {
         const a = await store.find(r.analysis_id)
@@ -78,8 +81,12 @@ export const getDashboardData = createServerFn({ method: 'GET' })
   })
 
 export async function saveProjectForUser(userId: string, analysisId: string): Promise<void> {
+  const [{ getDatabase }, { createAnalysisId }] = await Promise.all([
+    import('./db'),
+    import('./store'),
+  ])
+
   const db = await getDatabase()
-  const { createAnalysisId } = await import('./store')
   const id = createAnalysisId()
 
   await db.query(

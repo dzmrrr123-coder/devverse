@@ -36,6 +36,7 @@ function LoginPage() {
     try {
       const res = await fetch('/api/auth/dev', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           username: trimmedUser,
