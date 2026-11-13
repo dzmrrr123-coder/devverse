@@ -188,9 +188,16 @@ function DashboardPage() {
     setChatLoading(true)
 
     try {
+      let effectiveKey = apiKey.trim()
+      if (!effectiveKey) {
+        try {
+          effectiveKey = (localStorage.getItem('devverse_gemini_key') || '').trim()
+        } catch {}
+      }
+
       const headers: Record<string, string> = { 'content-type': 'application/json' }
-      if (apiKey.trim()) {
-        headers['x-gemini-api-key'] = apiKey.trim()
+      if (effectiveKey) {
+        headers['x-gemini-api-key'] = effectiveKey
       }
 
       const res = await fetch('/api/assistant/chat', {
@@ -201,6 +208,7 @@ function DashboardPage() {
           action: action ?? 'general_chat',
           prompt: promptToSend,
           analysisId: selectedProject?.analysisId ?? null,
+          apiKey: effectiveKey || undefined,
         }),
       })
 
@@ -215,7 +223,7 @@ function DashboardPage() {
           {
             id: `err_${Date.now()}`,
             role: 'assistant',
-            content: `Maaf, terjadi kendala: ${errText}`,
+            content: `⚠️ Kendala Google Gemini: ${errText}`,
           },
         ])
       } else {

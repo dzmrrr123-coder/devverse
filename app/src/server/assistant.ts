@@ -73,7 +73,7 @@ export async function callGeminiApi(
   systemInstruction: string,
   userMessage: string,
 ): Promise<string> {
-  const models = ['gemini-2.0-flash', 'gemini-1.5-flash']
+  const models = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro']
   let lastError: Error | null = null
 
   for (const model of models) {
@@ -84,7 +84,7 @@ export async function callGeminiApi(
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          systemInstruction: {
+          system_instruction: {
             parts: [{ text: systemInstruction }],
           },
           contents: [
@@ -103,7 +103,14 @@ export async function callGeminiApi(
       if (!response.ok) {
         const errText = await response.text()
         const sanitizedErr = errText.replace(/key=[^&\s"]+/gi, 'key=[REDACTED]')
-        throw new Error(`Gemini API error (${response.status}): ${sanitizedErr}`)
+        try {
+          const errJson = JSON.parse(errText) as { error?: { message?: string } }
+          const msg = errJson.error?.message || sanitizedErr
+          throw new Error(msg.replace(/key=[^&\s"]+/gi, 'key=[REDACTED]'))
+        } catch (parseErr) {
+          if (parseErr instanceof Error && parseErr.message.includes('API key')) throw parseErr
+          throw new Error(`Gemini API error (${response.status}): ${sanitizedErr}`)
+        }
       }
 
       const data = (await response.json()) as {
@@ -118,7 +125,7 @@ export async function callGeminiApi(
       if (text) return text
     } catch (err) {
       lastError = err instanceof Error ? err : new Error(String(err))
-      if (lastError.message.includes('404')) continue
+      if (lastError.message.includes('404') || lastError.message.toLowerCase().includes('not found')) continue
       throw lastError
     }
   }
@@ -155,7 +162,12 @@ export async function askAssistant(params: {
       reply = await callGeminiApi(apiKey, systemContext, prompt)
       isLiveAi = true
     } catch (err) {
-      console.warn('Panggilan Gemini API gagal, menggunakan fallback cerdas:', err instanceof Error ? err.message : err)
+      const errText = err instanceof Error ? err.message : String(err)
+      console.error('Panggilan Gemini API gagal:', errText)
+      if (params.apiKeyOverride) {
+        // User memasukkan API key sendiri, jangan sembunyikan error di balik template!
+        throw new Error(errText)
+      }
       reply = generateFallbackReply(params.analysis, params.action, prompt)
     }
   } else {
